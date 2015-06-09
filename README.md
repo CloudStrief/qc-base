@@ -11,6 +11,17 @@ qc-base是基于[Yii2](https://github.com/yiisoft/yii2/)框架实现的通用底
 Web服务器需要支持 **PHP 5.4.0.** 及以上
 
 
+安装说明
+--------
+
+安装分为以下几步：
+
+1. clone当前项目到web目录下，并把根目录指向web文件夹下
+2. 执行composer更新命令下载项目所依赖的包
+3. 修改数据库配置文件 `common/config/main-local.php` ，在部署目录下执行 `php yii migrate` 完成数据库的迁移
+4. 访问admin.php进入后台
+
+
 功能列表
 --------
 
