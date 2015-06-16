@@ -1,9 +1,29 @@
+<?php
+use yii\widgets\ActiveForm;
+use common\controls\Control;
 
-<div class="h_a">搜索</div>
-<form method="post"  action="http://127.0.0.1:8080/phpwind9/admin.php?m=design&c=component" >
+/* @var $searchAttributes array 搜索属性 */
+/* @var $searchForm common\models\DynamicModel 搜索动态模型 */
+
+?>
+<?php if (!empty($searchAttributes)): ?>
+    <div class="h_a">搜索</div>
+    <?php
+    $form = ActiveForm::begin([
+        'id' => 'search-form',
+        'fieldConfig' => [
+        ]
+    ]);
+    ?>
+    <?php if (isset($searchAttributes['keywords'])): ?>
     <div class="search_type cc mb10">
-        <label>关键字：</label><input type="text" class="input length_2 mr10" name="compid">
-        <label>搜索类型：</label>
+
+        <?= Control::createControl('label', 'keywords', $searchForm)->renderHtml() ?>&nbsp;&nbsp;
+
+        <?= Control::createControl('text', 'keywords', $searchForm, null, ['htmlClass' => 'input length_2 mr10'])->renderHtml() ?>
+
+        <?= Control::createControl('label', 'keywordsField', $searchForm)->renderHtml() ?>&nbsp;&nbsp;
+
         <select class="select_2 mr10" name="flag">
             <option value="">模块分类</option>
             <option value="forum" >版块</option>
@@ -15,7 +35,8 @@
             <option value="thread" >帖子</option>
             <option value="user" >用户</option>
         </select>
-        <button class="btn">搜索</button>
+        <button class="btn" type="submit">搜索</button>
     </div>
-    <input type="hidden" name="csrf_token" value="62532b5cc3d77233"/>
-</form>
+    <?php endif; ?>
+    <?php ActiveForm::end(); ?>
+<?php endif; ?>

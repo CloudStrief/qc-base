@@ -8,6 +8,7 @@
 namespace common\controls;
 
 use Yii;
+use yii\helpers\Html;
 
 /**
  * 文本框控件
@@ -20,14 +21,22 @@ class TextControl extends Control
     /**
      * @inheritdoc
      */
-    public $class = "input length_5";
+    public $htmlClass = "input length_5";
 
     /**
      * @inheritdoc
      */
     public function renderHtml()
     {
-        return $this->form->field($this->model, $this->attribute)->hint($this->hint)->textInput($this->options);
+        if ($this->form !== null && $this->model !== null) {
+            return $this->form->field($this->model, $this->attribute)->hint($this->hint)->textInput($this->options);
+        }
+
+        if ($this->model !== null) {
+            return Html::activeTextInput($this->model, $this->attribute, $this->options);
+        }
+
+        return Html::textInput($this->name, $this->value, $this->options);
     }
 
     /**
@@ -36,6 +45,6 @@ class TextControl extends Control
     public function renderValue()
     {
         $attribute = $this->attribute;
-        return $this->model->$attribute;
+        return ($this->model === null) ? $this->value : $this->model->$attribute;
     }
 }

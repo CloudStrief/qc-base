@@ -6,12 +6,23 @@ use yii\base\UnknownPropertyException;
 use yii\base\UnknownMethodException;
 
 /* @var $this \yii\web\View */
+/* @var $get array 全局变量$_GET */
+/* @var $model yii\db\ActiveRecord 当前的AR模型 */
+/* @var $models array 列表AR模型数组 */
+/* @var $pages yii\data\Pagination 分页对象 */
+/* @var $listAttributes array 列表属性 */
+/* @var $searchAttributes array 搜索属性 */
+/* @var $listAttributes array 列表属性 */
+/* @var $attributeLabels array 属性名称 */
+/* @var $listHandleEvents array 列表处理事件 */
+/* @var $pageSize integer 用户自定义分页数 */
+/* @var $searchForm common\models\DynamicModel 搜索动态模型 */
 
 MainAsset::register($this);
 //\yii\helpers\VarDumper::dump($models, 10, true);
 ?>
 
-<?= $this->render('_search'); ?>
+<?= $this->render('_search', ['searchAttributes' => $searchAttributes, 'searchForm' => $searchForm]); ?>
 
 <div class="table_list">
     <table width="100%">

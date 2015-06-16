@@ -8,6 +8,7 @@
 namespace common\controls;
 
 use Yii;
+use yii\helpers\Html;
 
 /**
  * 下选框控件
@@ -20,7 +21,7 @@ class DropDownControl extends Control
     /**
      * @inheritdoc
      */
-    public $class = "select_2";
+    public $htmlClass = "select_2";
     /**
      * 选项值
      */
@@ -31,7 +32,20 @@ class DropDownControl extends Control
      */
     public function renderHtml()
     {
-        return $this->form->field($this->model, $this->attribute)->hint($this->hint)->dropDownList($this->items, $this->options);
+        if ($this->form !== null && $this->model !== null) {
+            return $this->form->field($this->model, $this->attribute)->hint($this->hint)->dropDownList($this->items, $this->options);
+        }
+
+        if ($this->model !== null) {
+            return Html::activeDropDownList($this->model, $this->attribute, $this->items, $this->options);
+        }
+
+        if (empty($this->options['multiple'])) {
+            return Html::dropDownList($this->name, $this->value, $this->items, $this->options);
+        }
+        else {
+            return Html::listBox($this->name, $this->value, $this->items, $this->options);
+        }
     }
 
     /**

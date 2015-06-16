@@ -8,6 +8,7 @@
 namespace common\controls;
 
 use Yii;
+use yii\helpers\Html;
 
 /**
  * 单选框控件
@@ -20,7 +21,7 @@ class RadioControl extends Control
     /**
      * @inheritdoc
      */
-    public $class = "switch_list";
+    public $htmlClass = "switch_list";
     /**
      * 选项值
      */
@@ -31,7 +32,15 @@ class RadioControl extends Control
      */
     public function renderHtml()
     {
-        return $this->form->field($this->model, $this->attribute)->hint($this->hint)->radioList($this->items, $this->options);
+        if ($this->form !== null && $this->model !== null) {
+            return $this->form->field($this->model, $this->attribute)->hint($this->hint)->radioList($this->items, $this->options);
+        }
+
+        if ($this->model !== null) {
+            return Html::activeRadioList($this->model, $this->attribute, $this->items, $this->options);
+        }
+
+        return Html::radioList($this->name, $this->value, $this->items, $this->options);
     }
 
     /**

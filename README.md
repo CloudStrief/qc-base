@@ -18,8 +18,9 @@ Web服务器需要支持 **PHP 5.4.0.** 及以上
 
 1. clone当前项目到web目录下，并把根目录指向web文件夹下
 2. 执行composer更新命令下载项目所依赖的包
-3. 修改数据库配置文件 `common/config/main-local.php` ，在部署目录下执行 `php yii migrate` 完成数据库的迁移
-4. 访问admin.php进入后台
+3. 修改数据库配置文件 `common/config/main-local.php` ，在部署目录下执行 `php yii migrate` 完成数据库的迁移，
+   如果不能使用 `php yii migrate` 命令，可以尝试使用 `php init` 后再试一试
+4. 访问admin.php进入后台，默认用户名和密码都是admin
 
 
 功能列表
@@ -62,7 +63,7 @@ Web服务器需要支持 **PHP 5.4.0.** 及以上
 
 ### 代码规范
 
-开发者应十分重视一个项目代码的规范和可读性，我们要求代码要遵循[PSR](http://www.php-fig.org/)规范和
+开发者应十分重视一个项目代码的规范和可读性，我们要求代码要遵循 [PSR](http://www.php-fig.org/) 规范和
 [YII CORE CODE STYLE](https://github.com/yiisoft/yii2/blob/master/docs/internals/core-code-style.md)，
-每个参与到项目的人员都要为自己所写的代码添加清晰易读的注释，注释统一采用[Markdown](http://www.markdown.cn/)
-语法来排版[phpDoc](http://phpdoc.org/)注释。如若不能达到规范要求，所提代码将不予合并。
+每个参与到项目的人员都要为自己所写的代码添加清晰易读的注释，注释统一采用 [markdown](http://www.markdown.cn/) 
+语法来排版 [phpDoc](http://phpdoc.org/) 注释。如若不能达到规范要求，所提代码将不予合并。
