@@ -19,17 +19,25 @@ use yii\base\Component;
  * 比如我们需要显示一个文本框控件：
  *
  * ```php
- * Control::createControl('text', 'username', $model, $form, ['htmlClass' => 'text-input'])->renderHtml();
+ * Control::create('text', 'username', $model, $form, ['htmlClass' => 'text-input'])->renderHtml();
  * ```
+ *
+ * 目前系统已经支持的控件如下：
+ *
+ * - label 标签控件，对应html里的label标签
+ * - text 文本框控件，对应html里type为text的input标签
+ * - password 密码控件，对应html里type为password的input标签
+ * - radio 单选框控件，对应html里type为radio的input标签
+ * - dropDown 下拉框控件，对应html里select标签
  *
  * 大多数控件在渲染html元素时做了以下三个判断，可根据实际功能需求传递`$model`、`$form`属性
  *
- * - 如果属性`$model`、`$form`都不为null，则调用[[\yii\widgets\ActiveForm]]来渲染html，此时会含有模型
- *   表单验证、自动赋值、自动生成label等特性
- * - 如果属性`$model`不为null，而`$form`为null，则调用[[\yii\helpers\Html]]里与模型绑定的生成方法渲染html，
- *   此时有自动赋值特性，没有表单验证、自动生成label等特性
- * - 如果属性`$model`、`$form`都为null，则调用[[\yii\helpers\Html]]里普通方法根据参数渲染html，只生成表单
- *   元素，不带任何附加功能
+ * 1. 如果属性`$model`、`$form`都不为null，则调用[[\yii\widgets\ActiveForm]]来渲染html，此时会含有模型
+ *    表单验证、自动赋值、自动生成label等特性
+ * 2. 如果属性`$model`不为null，而`$form`为null，则调用[[\yii\helpers\Html]]里与模型绑定的生成方法渲染html，
+ *    此时有自动赋值特性，没有表单验证、自动生成label等特性
+ * 3. 如果属性`$model`、`$form`都为null，则调用[[\yii\helpers\Html]]里普通方法根据参数渲染html，只生成表单
+ *    元素，不带任何附加功能
  *
  * 
  * @author legendjw <legendjww@gmail.com>
@@ -60,10 +68,6 @@ class Control extends Component
      */
     public $model;
     /**
-     * @var string 当前控件默认的`class`，如果在$options参数里定义了`class`，则被覆盖
-     */
-    public $htmlClass;
-    /**
      * @var string 提示信息
      */
     public $hint;
@@ -76,18 +80,20 @@ class Control extends Component
      */
     public $value;
     /**
-     * @var array 生成html标签的选项
+     * @var array 生成html标签属性的键值对
      */
-    public $options = [];
+    public $htmlOptions = [];
+    /**
+     * @var array 标签默认的html标签属性，不应被外部直接设置，如果`$htmlOptions`属性里设置了相同属性，此设置则被覆盖
+     */
+    protected $defaultHtmlOptions = [];
 
     /**
      * @inheritdoc
      */
     public function init()
     {
-        if (!isset($options['class']) && $this->htmlClass !== null) {
-            $this->options['class'] = $this->htmlClass;
-        }
+        $this->htmlOptions = array_merge($this->defaultHtmlOptions, $this->htmlOptions);
         $this->name = $this->name === null ? $this->attribute : $this->name;
     }
 
@@ -101,7 +107,7 @@ class Control extends Component
      * @param array $params 创建控件的属性列表
      * @return \common\controls\Control 返回指定控件
      */
-    public static function createControl($type, $attribute, $model = null, $form = null, $params = [])
+    public static function create($type, $attribute, $model = null, $form = null, $params = [])
     {
         $params['attribute'] = $attribute;
         $params['form'] = $form;

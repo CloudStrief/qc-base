@@ -9,6 +9,7 @@ namespace common\controls;
 
 use Yii;
 use yii\helpers\Html;
+use yii\base\InvalidParamException;
 
 /**
  * 单选框控件
@@ -21,7 +22,7 @@ class RadioControl extends Control
     /**
      * @inheritdoc
      */
-    public $htmlClass = "switch_list";
+    protected $defaultHtmlOptions = ['class' => 'switch_list'];
     /**
      * 选项值
      */
@@ -30,17 +31,30 @@ class RadioControl extends Control
     /**
      * @inheritdoc
      */
+    public function init() 
+    {
+        parent::init();
+
+        //参数异常判断，方便调试
+        if (empty($this->items)) {
+            throw new InvalidParamException('属性' . $this->attribute . '的单选框控件的items选项值为空！');
+        }
+    }
+
+    /**
+     * @inheritdoc
+     */
     public function renderHtml()
     {
         if ($this->form !== null && $this->model !== null) {
-            return $this->form->field($this->model, $this->attribute)->hint($this->hint)->radioList($this->items, $this->options);
+            return $this->form->field($this->model, $this->attribute)->hint($this->hint)->radioList($this->items, $this->htmlOptions);
         }
 
         if ($this->model !== null) {
-            return Html::activeRadioList($this->model, $this->attribute, $this->items, $this->options);
+            return Html::activeRadioList($this->model, $this->attribute, $this->items, $this->htmlOptions);
         }
 
-        return Html::radioList($this->name, $this->value, $this->items, $this->options);
+        return Html::radioList($this->name, $this->value, $this->items, $this->htmlOptions);
     }
 
     /**

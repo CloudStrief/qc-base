@@ -9,6 +9,7 @@ namespace common\controls;
 
 use Yii;
 use yii\helpers\Html;
+use yii\base\InvalidParamException;
 
 /**
  * 下选框控件
@@ -21,11 +22,24 @@ class DropDownControl extends Control
     /**
      * @inheritdoc
      */
-    public $htmlClass = "select_2";
+    protected $defaultHtmlOptions = ['class' => 'select_2'];
     /**
      * 选项值
      */
-    public $items;
+    public $items = [];
+
+    /**
+     * @inheritdoc
+     */
+    public function init() 
+    {
+        parent::init();
+
+        //参数异常判断，方便调试
+        if (empty($this->items)) {
+            throw new InvalidParamException('属性' . $this->attribute . '的下拉框控件的items选项值为空！');
+        }
+    }
 
     /**
      * @inheritdoc
@@ -33,18 +47,18 @@ class DropDownControl extends Control
     public function renderHtml()
     {
         if ($this->form !== null && $this->model !== null) {
-            return $this->form->field($this->model, $this->attribute)->hint($this->hint)->dropDownList($this->items, $this->options);
+            return $this->form->field($this->model, $this->attribute)->hint($this->hint)->dropDownList($this->items, $this->htmlOptions);
         }
 
         if ($this->model !== null) {
-            return Html::activeDropDownList($this->model, $this->attribute, $this->items, $this->options);
+            return Html::activeDropDownList($this->model, $this->attribute, $this->items, $this->htmlOptions);
         }
 
-        if (empty($this->options['multiple'])) {
-            return Html::dropDownList($this->name, $this->value, $this->items, $this->options);
+        if (empty($this->htmlOptions['multiple'])) {
+            return Html::dropDownList($this->name, $this->value, $this->items, $this->htmlOptions);
         }
         else {
-            return Html::listBox($this->name, $this->value, $this->items, $this->options);
+            return Html::listBox($this->name, $this->value, $this->items, $this->htmlOptions);
         }
     }
 

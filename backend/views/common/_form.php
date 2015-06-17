@@ -33,7 +33,7 @@ $form = ActiveForm::begin([
                         if (isset($configs['type'])) {
                             $type = $configs['type'];
                             unset($configs['type']);
-                            $control = Control::createControl($type, $attribute, $model, $form, $configs);
+                            $control = Control::create($type, $attribute, $model, $form, $configs);
                             echo $control->renderHtml();
                         }
                         else {

@@ -136,6 +136,19 @@ class Admin extends ActiveRecord implements IdentityInterface
     /**
      * @inheritdoc
      */
+    public function searchAttributes()
+    {
+        return [
+            'keywords' => [
+                'username' => '用户名',
+                'email' => '邮箱',
+            ],
+        ];
+    }
+
+    /**
+     * @inheritdoc
+     */
     public function listAttributes()
     {
         return [

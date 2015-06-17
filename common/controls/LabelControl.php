@@ -29,9 +29,9 @@ class LabelControl extends Control
     public function renderHtml()
     {
         if ($this->model !== null) {
-            return Html::activeLabel($this->model, $this->attribute, $this->options);
+            return Html::activeLabel($this->model, $this->attribute, $this->htmlOptions);
         }
 
-        return Html::label($this->text, null, $this->options);
+        return Html::label($this->text, null, $this->htmlOptions);
     }
 }
