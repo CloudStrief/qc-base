@@ -24,7 +24,7 @@ class DropDownControl extends Control
      */
     protected $defaultHtmlOptions = ['class' => 'select_2'];
     /**
-     * 选项值
+     * @var array 选项值
      */
     public $items = [];
 

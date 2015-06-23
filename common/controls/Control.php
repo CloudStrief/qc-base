@@ -43,7 +43,7 @@ use yii\base\Component;
  * @author legendjw <legendjww@gmail.com>
  * @since 0.1
  */
-class Control extends Component
+abstract class Control extends Component
 {
     /**
      * @var array 内建的html控件列表
@@ -93,6 +93,8 @@ class Control extends Component
      */
     public function init()
     {
+        parent::init();
+
         $this->htmlOptions = array_merge($this->defaultHtmlOptions, $this->htmlOptions);
         $this->name = $this->name === null ? $this->attribute : $this->name;
     }
@@ -130,7 +132,7 @@ class Control extends Component
     }
 
     /**
-     * 返回渲染控件的html内容
+     * 返回渲染控件的html
      *
      * 由继承的控件来实现各自的逻辑，所有的子类都应该重新实现此方法
      */
@@ -141,8 +143,6 @@ class Control extends Component
 
     /**
      * 返回控件的值，供用户查看
-     *
-     * 由继承的控件来实现各自的逻辑，所有的子类都应该重新实现此方法
      */
     public function renderValue()
     {

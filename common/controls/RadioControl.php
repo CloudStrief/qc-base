@@ -24,7 +24,7 @@ class RadioControl extends Control
      */
     protected $defaultHtmlOptions = ['class' => 'switch_list'];
     /**
-     * 选项值
+     * @var array 选项值
      */
     public $items;
 
