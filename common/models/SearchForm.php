@@ -26,14 +26,6 @@ class SearchForm extends DynamicModel
      * @var string 搜索的关键字类型
      */
     public $keywords_type;
-    /**
-     * @var Model 搜索表单模型
-     */
-    public static $searchModel;
-    /**
-     * @var \yii\widgets\ActiveForm 搜索表单
-     */
-    public static $searchForm;
 
     /**
      * @inheritdoc
