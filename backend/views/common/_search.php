@@ -1,36 +1,49 @@
 <?php
 use yii\widgets\ActiveForm;
 use common\controls\Control;
+use yii\helpers\Url;
+use common\models\SearchForm;
+use common\search\Search;
+use common\search\KeywordsSearch;
+use yii\base\InvalidConfigException;
 
 /* @var $searchAttributes array 搜索属性 */
-/* @var $searchForm common\models\DynamicModel 搜索动态模型 */
+/* @var $searchModel common\models\DynamicModel 搜索动态模型 */
 
 ?>
 <?php if (!empty($searchAttributes)): ?>
     <div class="h_a">搜索</div>
     <?php
-    $form = ActiveForm::begin([
+    $searchForm = ActiveForm::begin([
         'id' => 'search-form',
-        'fieldConfig' => [
-        ]
+        'method' => 'GET',
     ]);
     ?>
-    <?php if (isset($searchAttributes['keywords'])): ?>
     <div class="search_type cc mb10">
 
-        <?= Control::create('label', 'keywords', $searchForm)->renderHtml() ?>&nbsp;&nbsp;
+        <?php
+            //渲染关键字搜索
+            $keywordsTypeItems = SearchForm::getDynamicAttributes($searchAttributes, $attributeLabels, 'keywords');
+            if (!empty($keywordsTypeItems)) {
+                echo Search::create('keywords', 'keywords', $searchModel, $searchForm, ['keywordsTypeItems' => $keywordsTypeItems])->renderHtml();
+            }
+            //渲染其他搜索
+            foreach ($searchAttributes as $attribute => $configs) {
+                if (!isset($configs['type'])) {
+                    throw new InvalidConfigException('搜索属性' . $attribute . '缺少type参数值！');
+                }
+                if ($configs['type'] == 'keywords') {
+                    continue;
+                }
+                $type = $configs['type'];
+                unset($configs['label'], $configs['type']);
+                echo Search::create($type, $attribute, $searchModel, $searchForm, $configs)->renderHtml();
+            }
+        ?>
+        
+        <button class="btn mr10" type="submit">搜索</button>
 
-
-        <?= Control::create('text', 'keywords', $searchForm, null, ['htmlOptions' => ['class' => 'input length_2 mr10']])->renderHtml() ?>
-
-        <?= Control::create('label', 'keywordsField', $searchForm)->renderHtml() ?>&nbsp;&nbsp;
-
-
-        <?= Control::create('dropDown', 'keywordsField', $searchForm, null, ['items' => $searchAttributes['keywords'], 'htmlOptions' => ['class' => 'select_2 mr10']])->renderHtml() ?>
-
-        <button class="btn" type="submit">搜索</button>
-
+        <button class="btn" onclick="javascript:window.location.href='<?= Url::to(['index']) ?>'" >重置</button>
     </div>
-    <?php endif; ?>
     <?php ActiveForm::end(); ?>
 <?php endif; ?>

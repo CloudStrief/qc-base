@@ -7,7 +7,7 @@ use yii\base\UnknownMethodException;
 
 /* @var $this \yii\web\View */
 /* @var $get array 全局变量$_GET */
-/* @var $model yii\db\ActiveRecord 当前的AR模型 */
+/* @var $model ActiveRecord 当前的AR模型 */
 /* @var $models array 列表AR模型数组 */
 /* @var $pages yii\data\Pagination 分页对象 */
 /* @var $listAttributes array 列表属性 */
@@ -16,13 +16,13 @@ use yii\base\UnknownMethodException;
 /* @var $attributeLabels array 属性名称 */
 /* @var $listHandleEvents array 列表处理事件 */
 /* @var $pageSize integer 用户自定义分页数 */
-/* @var $searchForm common\models\DynamicModel 搜索动态模型 */
+/* @var $searchModel common\models\DynamicModel 搜索动态模型 */
 
 MainAsset::register($this);
 //\yii\helpers\VarDumper::dump($models, 10, true);
 ?>
 
-<?= $this->render('_search', ['searchAttributes' => $searchAttributes, 'searchForm' => $searchForm]); ?>
+<?= $this->render('_search', ['searchAttributes' => $searchAttributes, 'attributeLabels' => $attributeLabels, 'searchModel' => $searchModel]); ?>
 
 <div class="table_list">
     <table width="100%">
@@ -77,7 +77,7 @@ MainAsset::register($this);
                         </tr>
                     <?php endforeach; ?>
                 <?php else: ?>
-                    <td><span style="color:red;">还没有任何数据...</span></td>
+                    <td style="text-align:center;" colspan="<?= count($listAttributes) ?>"><span style="color:red;">还没有任何数据...</span></td>
                 <?php endif; ?>
             <?php endif; ?>
     </table>

@@ -14,7 +14,7 @@ use yii\base\UnknownPropertyException;
 use yii\base\InvalidValueException;
 
 /**
- * 基础模型，所有AR模型都继承于此，方便统一控制
+ * 公共的AR模型
  *
  * @author legendjw <legendjww@gmail.com>
  * @since 0.1
@@ -40,6 +40,14 @@ class ActiveRecord extends \yii\db\ActiveRecord
             self::STATUS_ENABLE => '启用',
             self::STATUS_DISABLE => '禁用',
         ];
+    }
+
+    /**
+     * 列表页要搜索的属性字段
+     */
+    public function searchAttributes()
+    {
+        return [];
     }
 
     /**

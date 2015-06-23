@@ -9,6 +9,7 @@ namespace common\actions;
 
 use Yii;
 use yii\data\ActiveDataProvider;
+use common\models\SearchForm;
 
 /**
  * 通用的列表动作类
@@ -46,6 +47,7 @@ class ListAction extends \yii\base\Action
     {
         $this->modelName === null && $this->modelName = $this->controller->modelName;
         $model = new $this->modelName;
+        $request = Yii::$app->request;
 
         $query = call_user_func([$this->modelName, 'find']);
 
@@ -63,20 +65,23 @@ class ListAction extends \yii\base\Action
             }
         }
 
-        //搜索
-        $request = Yii::$app->request;
-        $keywords = $request->get('keywords');
-        if (!empty($keywords)) {
-            $field = $request->get('search_field');
-            $query->where(['like', $field, $keywords]);
-        }
-
-        //列表显示
+        //获取列表属性
         $listAttributes = method_exists($model, 'listAttributes') ? $model->listAttributes() : [];
+        //获取搜索属性
+        $searchAttributes = method_exists($model, 'searchAttributes') ? $model->searchAttributes() : [];
+        //获取属性名称
         $attributeLabels = method_exists($model, 'attributeLabels') ? $model->attributeLabels() : [];
+        //获取列表处理事件
         $listHandleEvents = method_exists($model, 'listHandleEvents') ? $model->listHandleEvents() : [];
 
-        //\yii\helpers\VarDumper::dump(\yii\helpers\Url::to(), 10, true);
+        //执行公共搜索
+        $dynamicAttributes = SearchForm::getDynamicAttributes($searchAttributes, $attributeLabels);
+        $searchModel = new SearchForm(\array_keys($dynamicAttributes), $dynamicAttributes);
+        $searchModel->load($request->get());
+        $query = SearchForm::getSearchQuery($searchAttributes, $searchModel, $query);
+
+
+        //\yii\helpers\VarDumper::dump($query, 10, true);
 
         //获取分页数
         $pageSize = $request->get('page_size');
@@ -87,6 +92,8 @@ class ListAction extends \yii\base\Action
                 'pageSize' => $pageSize,
             ],
         ]);
+    
+        //\yii\helpers\VarDumper::dump($provider->pagination, 10, true);
 
         return $this->controller->render($this->view, [
             'get' => $request->get(),
@@ -94,9 +101,11 @@ class ListAction extends \yii\base\Action
             'models' => $provider->models,
             'pages' => $provider->pagination,
             'listAttributes' => $listAttributes,
+            'searchAttributes' => $searchAttributes,
             'attributeLabels' => $attributeLabels,
             'listHandleEvents' => $listHandleEvents,
             'pageSize' => $pageSize,
+            'searchModel' => $searchModel,
         ]);
     }
 		

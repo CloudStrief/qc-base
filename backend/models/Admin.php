@@ -139,9 +139,18 @@ class Admin extends ActiveRecord implements IdentityInterface
     public function searchAttributes()
     {
         return [
-            'keywords' => [
-                'username' => '用户名',
-                'email' => '邮箱',
+            'username' => [
+                'type' => 'keywords',
+                'label' => '用户名',
+            ],
+            'email' => [
+                'type' => 'keywords',
+                'label' => '邮箱',
+            ],
+            'status' => [
+                'type' => 'map',
+                'label' => '状态',
+                'items' => static::getStatusItems(),
             ],
         ];
     }
