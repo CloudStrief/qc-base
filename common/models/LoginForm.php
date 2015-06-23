@@ -8,7 +8,6 @@
 namespace common\models;
 
 use Yii;
-use yii\base\Model;
 
 /**
  * 公共登录表单模型
