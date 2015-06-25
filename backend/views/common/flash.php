@@ -2,7 +2,7 @@
 use backend\assets\MainAsset;
 
 $asset = MainAsset::register($this);
-$url = ($url === null) ? 'javascript:history(-1);' : $url;
+$url = ($url === null) ? 'javascript:history.go(-1);' : $url;
 $this->title = ($type == 'success') ? '成功提示' : '失败提示' . $message;
 ?>
 

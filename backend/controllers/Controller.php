@@ -74,6 +74,9 @@ class Controller extends \yii\web\Controller
             'sort' => [
                 'class' => 'common\actions\SortAction',
             ],
+            'status' => [
+                'class' => 'common\actions\StatusAction',
+            ],
         ];
     }
 

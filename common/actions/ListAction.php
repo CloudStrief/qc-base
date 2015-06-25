@@ -71,8 +71,6 @@ class ListAction extends \yii\base\Action
         $searchAttributes = method_exists($model, 'searchAttributes') ? $model->searchAttributes() : [];
         //获取属性名称
         $attributeLabels = method_exists($model, 'attributeLabels') ? $model->attributeLabels() : [];
-        //获取列表处理事件
-        $listHandleEvents = method_exists($model, 'listHandleEvents') ? $model->listHandleEvents() : [];
 
         //执行公共搜索
         $dynamicAttributes = SearchForm::getDynamicAttributes($searchAttributes, $attributeLabels);
@@ -103,7 +101,6 @@ class ListAction extends \yii\base\Action
             'listAttributes' => $listAttributes,
             'searchAttributes' => $searchAttributes,
             'attributeLabels' => $attributeLabels,
-            'listHandleEvents' => $listHandleEvents,
             'pageSize' => $pageSize,
             'searchModel' => $searchModel,
         ]);

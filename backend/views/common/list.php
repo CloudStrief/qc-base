@@ -2,6 +2,8 @@
 use backend\assets\MainAsset;
 use yii\helpers\Html;
 use yii\helpers\Url;
+use yii\widgets\ActiveForm;
+use common\models\AttributeHandleEvent;
 use yii\base\UnknownPropertyException;
 use yii\base\UnknownMethodException;
 
@@ -14,7 +16,6 @@ use yii\base\UnknownMethodException;
 /* @var $searchAttributes array 搜索属性 */
 /* @var $listAttributes array 列表属性 */
 /* @var $attributeLabels array 属性名称 */
-/* @var $listHandleEvents array 列表处理事件 */
 /* @var $pageSize integer 用户自定义分页数 */
 /* @var $searchModel common\models\DynamicModel 搜索动态模型 */
 
@@ -25,22 +26,33 @@ MainAsset::register($this);
 <?= $this->render('_search', ['searchAttributes' => $searchAttributes, 'attributeLabels' => $attributeLabels, 'searchModel' => $searchModel]); ?>
 
 <div class="table_list">
+    <?php $mainForm = ActiveForm::begin([ 'id' => 'main-form', 'action' => '']); ?>
     <table width="100%">
         
         <thead>
             <tr>
-                <?php if ($listAttributes !== []): ?>
-                    <?php foreach ($listAttributes as $field => $attribute): ?>
-                    <td <?= isset($attribute['width']) ? 'width="' . $attribute['width'] . '"' : '' ?> width="5%"><?= isset($attribute['label']) ? $attribute['label'] : $attributeLabels[$field] ?></td>
-                    <?php endforeach; ?>
-                <?php endif; ?>
+                <?php 
+                    if ($listAttributes !== []) {
+                        foreach ($listAttributes as $attribute => $configs) {
+                            $width = isset($configs['width']) ? $configs['width'] : '5%';
+                            if (isset($configs['handle']) && ($configs['handle'] == 'pkBox' || $configs['handle'] == 'batchDelete')) {
+                                $label = '<input type="checkbox" name="select_all" class="box-select-all" />全选';
+                            }
+                            else {
+                                $label = isset($configs['label']) ? $configs['label'] : $model->getAttributeLabel($attribute);
+                            }
+                            echo '<td width="' . $width . '" >' . $label . '</td>';
+                        }
+                    }
+                ?>
             </tr>
         </thead>
             <?php if ($listAttributes !== []): ?>
                 <?php if (!empty($models)): ?>
                     <?php foreach ($models as $model): ?>
+                        <?php AttributeHandleEvent::$model = $model; ?>
                         <tr>
-                        <?php foreach ($listAttributes as $field => $attribute): ?>
+                        <?php foreach ($listAttributes as $attribute => $configs): ?>
                             <td>
                                 <?php
                                 /**
@@ -49,27 +61,28 @@ MainAsset::register($this);
                                  * 1. 检测是否有自定义的属性事件处理`handle`,如果有且为匿名函数则直接调用,否则调用相应的处理事件处理
                                  * 2. 检测当前模型是否含有此属性，若有则输出,否则抛出异常
                                  */
-                                if (isset($attribute['handle'])) {
-                                    if ($attribute['handle'] instanceof \Closure) {
-                                        echo call_user_func($attribute['handle'], $field, $model);
+                                if (isset($configs['handle'])) {
+                                    if ($configs['handle'] instanceof \Closure) {
+                                        echo call_user_func($configs['handle'], $attribute, $model);
                                     }
                                     else {
-                                        $handleEvent = $attribute['handle'];
-                                        if (isset($listHandleEvents[$handleEvent[0]])) {
-                                            $args = [$field, $model];
-                                            isset($handleEvent[1]) && $args[] = $handleEvent[1];
-                                            echo call_user_func_array($listHandleEvents[$handleEvent[0]], $args);
+                                        $handleEvent = $configs['handle'];
+                                        $handleEventName = $handleEvent . 'Event';
+                                        $args = (isset($configs['args'])) ? $configs['args'] : [];
+                                        if (method_exists('\common\models\AttributeHandleEvent', $handleEventName)) {
+                                            $args = [$attribute, $args];
+                                            echo call_user_func_array(['\common\models\AttributeHandleEvent', $handleEventName], $args);
                                         }
                                         else {
-                                            throw new UnknownMethodException($handleEvent[0] . '处理事件不存在！是否调用错误？');
+                                            throw new UnknownMethodException($handleEvent . '处理事件不存在！是否调用错误？');
                                         }
                                     }
                                 }
-                                else if (isset($model->$field)) {
-                                    echo $model->$field;
+                                else if (isset($model->$attribute)) {
+                                    echo $model->$attribute;
                                 }
                                 else {
-                                    throw new UnknownPropertyException($field . '属性不存在，且属性处理事件错误！');
+                                    throw new UnknownPropertyException($attribute . '属性不存在，且属性处理事件错误！');
                                 }
 ?>
                             </td>
@@ -81,6 +94,34 @@ MainAsset::register($this);
                 <?php endif; ?>
             <?php endif; ?>
     </table>
+    <?php ActiveForm::end(); ?>
 </div>
 
 <?= $this->render('_page', ['pages' => $pages, 'pageSize' => $pageSize]); ?>
+
+<div class="btn_wrap">
+    <div class="btn_wrap_pd">
+        <?php
+            foreach ($listAttributes as $attribute => $configs) {
+                if (!isset($configs['handle'])) {
+                    continue;
+                }
+                if ($configs['handle'] == 'pkBox' && isset($configs['args']['actions'])) {
+                    $actions = $configs['args']['actions'];
+                    foreach ($actions as $action) {
+                        echo '<button class="btn btn_submit mr10 batch-btn" data-url="' . Url::to($action['url']) . '" type="submit" >' . $action['label'] . '</button>';
+                    }
+                }
+                elseif ($configs['handle'] == 'batchDelete') {
+                    $action = (isset($configs['args']['action'])) ? $configs['args']['action'] : ['label' => '删除', 'url' => ['delete']];
+                    echo '<button class="btn btn_submit mr10 batch-btn" data-url="' . Url::to($action['url']) . '" type="submit" >' . $action['label'] . '</button>';
+                }
+                elseif ($configs['handle'] == 'batchSort') {
+                    $action = (isset($configs['args']['action'])) ? $configs['args']['action'] : ['label' => '排序', 'url' => ['sort']];
+                    echo '<button class="btn mr10 batch-sort" data-url="' . Url::to($action['url']) . '" type="submit" >' . $action['label'] . '</button>';
+                }
+            }
+        ?>
+    </div>
+</div>
+

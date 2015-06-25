@@ -11,25 +11,29 @@ use Yii;
 use yii\web\NotFoundHttpException;
 
 /**
- * 通用的删除动作类
+ * 通用的排序动作类
  * 
  * @author legendjw <legendjww@gmail.com>
  * @since 0.1
  */
-class DeleteAction extends \yii\base\Action
+class SortAction extends \yii\base\Action
 {
     /**
      * @var string 当前操作模型类名
      */
     public $modelName;
     /**
+     * @var string 排序属性
+     */
+    public $sortAttribute = 'sort';
+    /**
      * @var string 成功提示
      */
-    public $successMsg = '删除成功';
+    public $successMsg = '排序成功';
     /**
      * @var string 错误提示
      */
-    public $errorMsg = '删除失败，请稍后再试';
+    public $errorMsg = '排序失败，请稍后再试';
 
     /**
      * @inheritdoc
@@ -37,39 +41,40 @@ class DeleteAction extends \yii\base\Action
     public function run()
     {
         $request = Yii::$app->getRequest();
+        $db = Yii::$app->db;
         $modelName = ($this->modelName === null) ? $this->controller->modelName : $this->modelName;
-        //找到当前模型的所有主键，拼接成数组条件
+
         $pks = $modelName::primaryKey();
+        $tableName = $modelName::tableName();
         $pkValues = [];
         $requestMethod = ($request->isGet) ? 'get' : 'post';
         $requestData = $request->$requestMethod();
         
-        //如果存在delete参数则为批量删除
-        if (isset($requestData['select'])) {
-            $deletes = $requestData['select'];
-            foreach ($deletes as &$delete) {
-                $delete = json_decode($delete, true);
+        if (isset($requestData['sort'])) {
+            $sorts = $requestData['sort'];
+            foreach ($sorts as &$sort) {
+                $sort['pk'] = json_decode($sort['pk'], true);
             }
-            unset($delete);
+            unset($sort);
         }
         else {
-            foreach ($pks as $pk) {
-                $pkValues[$pk] = $requestData[$pk];
-            }
-            $deletes[] = $pkValues;
+            throw new NotFoundHttpException('排序数据丢失!');
         }
 
-        foreach ($deletes as $delete) {
-            $model = $modelName::findOne($delete);
-            if ($model === null) {
-                throw new NotFoundHttpException('没有找到要删除的记录!');
-            }
+        foreach ($sorts as $sort) {
+            $command = $db->createCommand()->update($tableName, [$this->sortAttribute => $sort['sort']], $sort['pk']);
 
-            if (false === $model->delete()) {
+            $command->execute();
+
+            /**
+            try {
+                $command->execute();
+            }
+            catch(\Exception $e) {
                 return $this->controller->flash(['type' => 'error', 'message' => $this->errorMsg]);
             }
+            **/
         }
         return $this->controller->flash(['message' => $this->successMsg]);
-
     }
 }

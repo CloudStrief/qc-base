@@ -38,7 +38,12 @@ var cdialog = {
             options.title = args.title;
         }
         var d = dialog(options);
-        d.show(args.thisObj);
+        if (args.thisObj) {
+            d.show(args.thisObj);
+        }
+        else {
+            d.show();
+        }
     },
     alert: function (args) {
         var type = args.type || 'success';
@@ -89,6 +94,7 @@ var handleAjaxReponse = function (json, reload) {
     else {
         cdialog.alert({type: json.type, content: json.message, time: json.time, width: 250});
     }
+    submitLock = 0;
 }
 
 /**
@@ -134,12 +140,12 @@ var handleFormResponse = function (json) {
 
 jQuery(function($) {
 
-    //删除全选
+    //批量全选
     $(document).on('click', '.box-select-all', function() {
         if ($(this).is(":checked"))
-        $(".box-delete").prop('checked', true);
+        $(".box-select").prop('checked', true);
         else
-        $(".box-delete").prop('checked', false);
+        $(".box-select").prop('checked', false);
     });
 
     //删除提示
@@ -159,27 +165,50 @@ jQuery(function($) {
         return false;
     });
 
-    //批量删除
-    $(document).on('click', '.batch-delete', function() {
-        var length = $(".box-delete:checked").length;
+    //批量操作
+    $(document).on('click', '.batch-btn', function() {
+        var length = $(".box-select:checked").length;
         if (length == 0) {
-            alert('请至少选择一项');
+            cdialog.alert({type: 'error', 'content': '请至少选择一项', time: 2000});
             return false;
         }
-        if (!confirm('确认删除?'))
-        return false;
-        var ids = '';
-        var url = $(this).data('url');
 
-        $("#main-form").attr('action', url).trigger('submit');
+        if (submitLock == 1) {
+            return false;
+        }
+        else {
+            submitLock = 1;
+        }
+         
+        var url = $(this).data('url');
+        var label = $(this).html();
+
+        var batchCallBack = function () {
+            $.post(url, $("#main-form").serialize(), function (json) {
+                handleAjaxReponse(json, true);
+            });
+        };
+
+        cdialog.confirm({thisObj:this, id:'batch-dialog', content: '确定要' + label + '吗？', width: 150, okCallback: batchCallBack});
 
     });
 
     //批量排序
     $(document).on('click', '.batch-sort', function() {
-        var url = $(this).data('url');
+        if (submitLock == 1) {
+            return false;
+        }
+        else {
+            submitLock = 1;
+        }
 
-        $("#main-form").attr('action', url).trigger('submit');
+        var url = $(this).data('url');
+        var label = $(this).html();
+
+        $.post(url, $("#main-form").serialize(), function (json) {
+            handleAjaxReponse(json, true);
+        });
+
     });
 
     //class未ajax.form的表单全部以ajax请求提交
@@ -288,8 +317,6 @@ jQuery(function($) {
     /*$(window).on('resize', function(){
       setBtnWrap(true);
       });*/
-
-
 
 
     //iframe页面f5刷新

@@ -102,6 +102,7 @@ class Admin extends ActiveRecord implements IdentityInterface
             [['username', 'email', 'status'], 'required'],
             [['username', 'email'], 'unique'],
             ['email', 'email'],
+            ['sort', 'number'],
             ['password', 'required', 'on' => ['create', 'resetPwd']],
             ['password', 'string', 'min' => 6, 'max' => 32],
             [['frontend_user_id', 'status', 'login_times', 'login_error_times', 'last_login_ip', 'last_login_time', 'last_modify_password_time', 'create_time'], 'integer'],
@@ -130,6 +131,7 @@ class Admin extends ActiveRecord implements IdentityInterface
             'last_login_time' => '最后登录时间',
             'last_modify_password_time' => '最后修改密码时间',
             'create_time' => '创建时间',
+            'sort' => '排序',
         ];
     }
 
@@ -161,6 +163,14 @@ class Admin extends ActiveRecord implements IdentityInterface
     public function listAttributes()
     {
         return [
+            'pk' => [
+                'width' => '5%',
+                'handle' => 'batchDelete',
+            ],
+            'sort' => [
+                'width' => '5%',
+                'handle' => 'batchSort',
+            ],
             'user_id' => [
                 'width' => '5%',
             ],
@@ -170,7 +180,8 @@ class Admin extends ActiveRecord implements IdentityInterface
             'frontend_user_id' => [
                 'label' => '前台用户',
                 'width' => '10%',
-                'handle' => ['empty', ['default' => '未绑定']],
+                'handle' => 'empty',
+                'args' => ['default' => '未绑定'],
             ],
             'email' => [
                 'width' => '10%',
@@ -178,31 +189,38 @@ class Admin extends ActiveRecord implements IdentityInterface
             'login_times' => [
                 'label' => '登录次数/错误次数',
                 'width' => '10%',
-                'handle' => ['join', ['default' => '未登录过', 'joinFields' => ['login_error_times']]],
+                'handle' => 'join',
+                'args' => [
+                    'default' => '未登录过', 
+                    'joinAttributes' => ['login_error_times'],
+                ],
             ],
             'last_login_time' => [
                 'label' => '最后登录时间/IP',
                 'width' => '10%',
-                'handle' => function ($field, $model) {
-                    return empty($model->$field) ? '未登录过' : date('Y-m-d H:i:s', $model->$field) . '/' . $model->last_login_ip;
+                'handle' => function ($attribute, $model) {
+                    return empty($model->$attribute) ? '未登录过' : date('Y-m-d H:i:s', $model->$attribute) . '/' . $model->last_login_ip;
                 },
             ],
             'last_modify_password_time' => [
                 'width' => '10%',
-                'handle' => ['date', ['default' => '未修改过']],
+                'handle' => 'date',
+                'args' => ['default' => '未修改过'],
             ],
             'create_time' => [
                 'width' => '10%',
-                'handle' => ['date', ['default' => '未知']],
+                'handle' => 'date',
+                'args' => ['default' => '未知'],
             ],
             'status' => [
                 'width' => '5%',
-                'handle' => ['map', ['mapData' => static::getStatusItems()]],
+                'handle' => 'map',
+                'args' => ['mapData' => static::getStatusItems()],
             ],
             'operation' => [
                 'label' => '操作',
                 'width' => '10%',
-                'handle' => ['operation'],
+                'handle' => 'operation',
             ],
         ];
 
