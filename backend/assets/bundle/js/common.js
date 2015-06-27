@@ -173,17 +173,17 @@ jQuery(function($) {
             return false;
         }
 
-        if (submitLock == 1) {
-            return false;
-        }
-        else {
-            submitLock = 1;
-        }
-         
         var url = $(this).data('url');
         var label = $(this).html();
 
         var batchCallBack = function () {
+            if (submitLock == 1) {
+                return false;
+            }
+            else {
+                submitLock = 1;
+            }
+
             $.post(url, $("#main-form").serialize(), function (json) {
                 handleAjaxReponse(json, true);
             });
