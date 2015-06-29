@@ -9,6 +9,7 @@ namespace common\search;
 
 use Yii;
 use common\controls\Control;
+use common\helpers\Universal;
 use yii\db\Query;
 use yii\helpers\ArrayHelper;
 use yii\base\InvalidConfigException;
@@ -57,7 +58,8 @@ use yii\base\InvalidConfigException;
 class MapSearch extends Search
 {
     /**
-     * @var string|array|Closure 映射选项值
+     * @var Callable 映射选项值
+     * @see \common\helpers\Universal::getCallableValue()
      */
     public $items;
     /**
@@ -87,6 +89,7 @@ class MapSearch extends Search
         if ($this->items === null) {
             throw new InvalidConfigException('映射搜索组件缺少items选项值参数！是否书写错误？');
         }
+        $this->items = Universal::getCallableValue($this->items);
     }
 
     /**

@@ -9,6 +9,7 @@ namespace common\controls;
 
 use Yii;
 use yii\helpers\Html;
+use common\helpers\Universal;
 use yii\base\InvalidParamException;
 
 /**
@@ -24,7 +25,8 @@ class DropDownControl extends Control
      */
     protected $defaultHtmlOptions = ['class' => 'select_2'];
     /**
-     * @var array 选项值
+     * @var Callable 选项值
+     * @see \common\helpers\Universal::getCallableValue()
      */
     public $items = [];
 
@@ -39,6 +41,7 @@ class DropDownControl extends Control
         if (empty($this->items)) {
             throw new InvalidParamException('属性' . $this->attribute . '的下拉框控件的items选项值为空！');
         }
+        $this->items = Universal::getCallableValue($this->items);
     }
 
     /**

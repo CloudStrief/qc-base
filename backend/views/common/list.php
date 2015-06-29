@@ -3,7 +3,7 @@ use backend\assets\MainAsset;
 use yii\helpers\Html;
 use yii\helpers\Url;
 use yii\widgets\ActiveForm;
-use common\models\AttributeHandleEvent;
+use common\helpers\AttributeHandle;
 use yii\base\UnknownPropertyException;
 use yii\base\UnknownMethodException;
 
@@ -36,7 +36,7 @@ MainAsset::register($this);
                         foreach ($listAttributes as $attribute => $configs) {
                             $width = isset($configs['width']) ? $configs['width'] : '5%';
                             if (isset($configs['handle']) && ($configs['handle'] == 'pkBox' || $configs['handle'] == 'batchDelete')) {
-                                $label = '<input type="checkbox" name="select_all" class="box-select-all" />全选';
+                                $label = '<label><input type="checkbox" name="select_all" class="box-select-all" />全选</label>';
                             }
                             else {
                                 $label = isset($configs['label']) ? $configs['label'] : $model->getAttributeLabel($attribute);
@@ -50,7 +50,7 @@ MainAsset::register($this);
             <?php if ($listAttributes !== []): ?>
                 <?php if (!empty($models)): ?>
                     <?php foreach ($models as $model): ?>
-                        <?php AttributeHandleEvent::$model = $model; ?>
+                        <?php AttributeHandle::$model = $model; ?>
                         <tr>
                         <?php foreach ($listAttributes as $attribute => $configs): ?>
                             <td>
@@ -69,9 +69,9 @@ MainAsset::register($this);
                                         $handleEvent = $configs['handle'];
                                         $handleEventName = $handleEvent . 'Event';
                                         $args = (isset($configs['args'])) ? $configs['args'] : [];
-                                        if (method_exists('\common\models\AttributeHandleEvent', $handleEventName)) {
+                                        if (method_exists('common\helpers\AttributeHandle', $handleEventName)) {
                                             $args = [$attribute, $args];
-                                            echo call_user_func_array(['\common\models\AttributeHandleEvent', $handleEventName], $args);
+                                            echo call_user_func_array(['\common\helpers\AttributeHandle', $handleEventName], $args);
                                         }
                                         else {
                                             throw new UnknownMethodException($handleEvent . '处理事件不存在！是否调用错误？');

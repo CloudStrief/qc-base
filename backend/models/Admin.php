@@ -152,7 +152,7 @@ class Admin extends ActiveRecord implements IdentityInterface
             'status' => [
                 'type' => 'map',
                 'label' => '状态',
-                'items' => static::getStatusItems(),
+                'items' => [static::className(), 'getStatusItems'],
             ],
         ];
     }
@@ -215,7 +215,7 @@ class Admin extends ActiveRecord implements IdentityInterface
             'status' => [
                 'width' => '5%',
                 'handle' => 'map',
-                'args' => ['mapData' => static::getStatusItems()],
+                'args' => ['mapData' => [static::className(), 'getStatusItems']],
             ],
             'operation' => [
                 'label' => '操作',
@@ -248,7 +248,7 @@ class Admin extends ActiveRecord implements IdentityInterface
                     ],
                     'status' => [
                         'type' => 'dropDown',
-                        'items' => static::getStatusItems(),
+                        'items' => [static::className(), 'getStatusItems'],
                     ],
                 ]
             ]

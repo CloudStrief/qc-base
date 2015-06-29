@@ -5,10 +5,11 @@
  * @license http://www.u-bo.com/license/
  */
 
-namespace common\models;
+namespace common\helpers;
 
 use yii\helpers\ArrayHelper;
 use yii\helpers\Url;
+use common\helpers\Universal;
 use yii\base\UnknownPropertyException;
 use yii\base\InvalidValueException;
 
@@ -35,7 +36,7 @@ use yii\base\InvalidValueException;
  * @author legendjw <legendjww@gmail.com>
  * @since 0.1
  */
-class AttributeHandleEvent
+class AttributeHandle
 {
     /**
      * @var Model 当前需要处理的静态模型
@@ -59,6 +60,7 @@ class AttributeHandleEvent
     /**
      * 联合处理事件
      *
+     * @param string $default 为空时的默认值
      * @param array $joinAttributes 需要联合显示的属性
      * @param string $sepa 联合多个属性值的分隔符，默认为`/`
      * @return string 返回以分隔符相连的多个属性的值
@@ -69,9 +71,10 @@ class AttributeHandleEvent
         $joinAttributes = ArrayHelper::getValue($args, 'joinAttributes', []);
         $sepa = ArrayHelper::getValue($args, 'sepa', '/');
 
-        if (isset($args['default']) && empty($model->$attribute)) {
-            return $args['default'];
+        if (empty($model->$attribute)) {
+            return static::emptyEvent($attribute, $args);
         }
+
         array_unshift($joinAttributes, $attribute);
         $joinValues = [];
         foreach ($joinAttributes as $attribute) {
@@ -88,6 +91,7 @@ class AttributeHandleEvent
     /**
      * 日期处理事件
      *
+     * @param string $default 为空时的默认值
      * @param string $format 日期格式化形式
      * @return string 返回日期函数处理后的字符串
      */
@@ -96,16 +100,18 @@ class AttributeHandleEvent
         $model = static::$model;
         $format = ArrayHelper::getValue($args, 'format', 'Y-m-d H:i:s');
 
-        if (isset($args['default']) && empty($model->$attribute)) {
-            return $args['default'];
+        if (empty($model->$attribute)) {
+            return static::emptyEvent($attribute, $args);
         }
+
         return date($format, $model->$attribute);
     }
 
     /**
      * 映射处理事件
      *
-     * @param array $mapData 映射数据，映射数据键值对应属性值，如下
+     * @param string $default 为空时的默认值
+     * @param Callable $mapData 映射数据，映射数据键值对应属性值，如下
      *
      * ```php
      * [
@@ -118,8 +124,18 @@ class AttributeHandleEvent
      */
     public static function mapEvent($attribute, array $args = []) 
     {
+        static $mapData = null;
         $model = static::$model;
-        $mapData = ArrayHelper::getValue($args, 'mapData', []);
+
+        if (empty($model->$attribute)) {
+            return static::emptyEvent($attribute, $args);
+        }
+
+        if ($mapData === null) {
+            $mapData = ArrayHelper::getValue($args, 'mapData', []);
+            $mapData = Universal::getCallableValue($mapData);
+        }
+
         if (isset($mapData[$model->$attribute])) {
             return $mapData[$model->$attribute];
         }
