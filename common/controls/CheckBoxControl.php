@@ -13,12 +13,12 @@ use common\helpers\Universal;
 use yii\base\InvalidParamException;
 
 /**
- * 单选框控件
+ * 多选框控件
  *
  * @author legendjw <legendjww@gmail.com>
  * @since 0.1
  */
-class RadioControl extends Control
+class CheckboxControl extends Control
 {
     /**
      * @inheritdoc
@@ -39,7 +39,7 @@ class RadioControl extends Control
 
         //参数异常判断，方便调试
         if (empty($this->items)) {
-            throw new InvalidParamException('属性' . $this->attribute . '的单选框控件的items选项值为空！');
+            throw new InvalidParamException('属性' . $this->attribute . '的多选框控件的items选项值为空！');
         }
         $this->items = Universal::getCallableValue($this->items);
     }
@@ -50,14 +50,14 @@ class RadioControl extends Control
     public function renderHtml()
     {
         if ($this->form !== null && $this->model !== null) {
-            return $this->form->field($this->model, $this->attribute)->hint($this->hint)->radioList($this->items, $this->options);
+            return $this->form->field($this->model, $this->attribute)->hint($this->hint)->checkboxList($this->items, $this->options);
         }
 
         if ($this->model !== null) {
-            return Html::activeRadioList($this->model, $this->attribute, $this->items, $this->options);
+            return Html::activeCheckboxList($this->model, $this->attribute, $this->items, $this->options);
         }
 
-        return Html::radioList($this->name, $this->value, $this->items, $this->options);
+        return Html::checkboxList($this->name, $this->value, $this->items, $this->options);
     }
 
     /**
@@ -66,7 +66,16 @@ class RadioControl extends Control
     public function renderValue()
     {
         $attribute = $this->attribute;
-        $value = $this->model->$attribute;
-        return isset($this->items[$value]) ? $this->items[$value] : $value;
+        $values = ($this->model !== null) ? $this->model->$attribute : $this->value;
+        if (empty($values)) {
+            return '';
+        }
+
+        $valueLabels = [];
+        foreach ($values as $value) {
+            $valueLabels[] = isset($this->items[$value]) ? $this->items[$value] : $value;
+        }
+
+        return \implode(',', $valueLabels);
     }
 }

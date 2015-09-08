@@ -21,7 +21,7 @@ class TextControl extends Control
     /**
      * @inheritdoc
      */
-    protected $defaultHtmlOptions = ['class' => 'input length_5'];
+    protected $defaultOptions = ['class' => 'input length_5'];
 
     /**
      * @inheritdoc
@@ -29,14 +29,14 @@ class TextControl extends Control
     public function renderHtml()
     {
         if ($this->form !== null && $this->model !== null) {
-            return $this->form->field($this->model, $this->attribute)->hint($this->hint)->textInput($this->htmlOptions);
+            return $this->form->field($this->model, $this->attribute)->hint($this->hint)->textInput($this->options);
         }
 
         if ($this->model !== null) {
-            return Html::activeTextInput($this->model, $this->attribute, $this->htmlOptions);
+            return Html::activeTextInput($this->model, $this->attribute, $this->options);
         }
 
-        return Html::textInput($this->name, $this->value, $this->htmlOptions);
+        return Html::textInput($this->name, $this->value, $this->options);
     }
 
     /**

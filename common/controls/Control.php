@@ -19,7 +19,7 @@ use yii\base\Component;
  * 比如我们需要显示一个文本框控件：
  *
  * ```php
- * Control::create('text', 'username', $model, $form, ['htmlClass' => 'text-input'])->renderHtml();
+ * Control::create('text', ['attribute' => username, 'model' => $model, 'form' => $form, 'options' => ['class' => 'text-input']])->renderHtml();
  * ```
  *
  * 目前系统已经支持的控件如下：
@@ -53,7 +53,10 @@ abstract class Control extends Component
         'text' => 'common\controls\TextControl',
         'password' => 'common\controls\PasswordControl',
         'radio' => 'common\controls\RadioControl',
+        'checkbox' => 'common\controls\CheckBoxControl',
         'dropDown' => 'common\controls\DropDownControl',
+        'textarea' => 'common\controls\TextareaControl',
+        'tree' => 'common\controls\TreeControl',
     ];
     /**
      * @var string 当前解析的模型的属性
@@ -80,13 +83,13 @@ abstract class Control extends Component
      */
     public $value;
     /**
-     * @var array 生成html标签属性的键值对
+     * @var array 生成标签的配置
      */
-    public $htmlOptions = [];
+    public $options = [];
     /**
-     * @var array 标签默认的html标签属性，不应被外部直接设置，如果`$htmlOptions`属性里设置了相同属性，此设置则被覆盖
+     * @var array 标签默认的生成标签的配置，不应被外部直接设置，如果`$options`属性里设置了相同属性，此设置则被覆盖
      */
-    protected $defaultHtmlOptions = [];
+    protected $defaultOptions = [];
 
     /**
      * @inheritdoc
@@ -95,7 +98,7 @@ abstract class Control extends Component
     {
         parent::init();
 
-        $this->htmlOptions = array_merge($this->defaultHtmlOptions, $this->htmlOptions);
+        $this->options = array_merge($this->defaultOptions, $this->options);
         $this->name = $this->name === null ? $this->attribute : $this->name;
     }
 
@@ -109,11 +112,8 @@ abstract class Control extends Component
      * @param array $params 创建控件的属性列表
      * @return \common\controls\Control 返回指定控件
      */
-    public static function create($type, $attribute, $model = null, $form = null, $params = [])
+    public static function create($type, $params = [])
     {
-        $params['attribute'] = $attribute;
-        $params['form'] = $form;
-        $params['model'] = $model;
         if ($type instanceof \Closure) {
             $params['class'] = __NAMESPACE__ . '\InlineControl';
             $params['method'] = $type;

@@ -21,7 +21,7 @@ class PasswordControl extends Control
     /**
      * @inheritdoc
      */
-    protected $defaultHtmlOptions = ['class' => 'input length_5'];
+    protected $defaultOptions = ['class' => 'input length_5'];
 
     /**
      * @inheritdoc
@@ -29,14 +29,14 @@ class PasswordControl extends Control
     public function renderHtml()
     {
         if ($this->form !== null && $this->model !== null) {
-            return $this->form->field($this->model, $this->attribute)->hint($this->hint)->passwordInput($this->htmlOptions);
+            return $this->form->field($this->model, $this->attribute)->hint($this->hint)->passwordInput($this->options);
         }
 
         if ($this->model !== null) {
-            return Html::activePasswordInput($this->model, $this->attribute, $this->htmlOptions);
+            return Html::activePasswordInput($this->model, $this->attribute, $this->options);
         }
 
-        return Html::input('password', $this->name, $this->value, $this->htmlOptions);
+        return Html::input('password', $this->name, $this->value, $this->options);
     }
 
     /**

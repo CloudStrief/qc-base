@@ -23,7 +23,7 @@ class DropDownControl extends Control
     /**
      * @inheritdoc
      */
-    protected $defaultHtmlOptions = ['class' => 'select_2'];
+    protected $defaultOptions = ['class' => 'select_2', 'encodeSpaces' => true];
     /**
      * @var Callable 选项值
      * @see \common\helpers\Universal::getCallableValue()
@@ -50,18 +50,18 @@ class DropDownControl extends Control
     public function renderHtml()
     {
         if ($this->form !== null && $this->model !== null) {
-            return $this->form->field($this->model, $this->attribute)->hint($this->hint)->dropDownList($this->items, $this->htmlOptions);
+            return $this->form->field($this->model, $this->attribute)->hint($this->hint)->dropDownList($this->items, $this->options);
         }
 
         if ($this->model !== null) {
-            return Html::activeDropDownList($this->model, $this->attribute, $this->items, $this->htmlOptions);
+            return Html::activeDropDownList($this->model, $this->attribute, $this->items, $this->options);
         }
 
-        if (empty($this->htmlOptions['multiple'])) {
-            return Html::dropDownList($this->name, $this->value, $this->items, $this->htmlOptions);
+        if (empty($this->options['multiple'])) {
+            return Html::dropDownList($this->name, $this->value, $this->items, $this->options);
         }
         else {
-            return Html::listBox($this->name, $this->value, $this->items, $this->htmlOptions);
+            return Html::listBox($this->name, $this->value, $this->items, $this->options);
         }
     }
 
@@ -72,6 +72,23 @@ class DropDownControl extends Control
     {
         $attribute = $this->attribute;
         $value = $this->model->$attribute;
-        return isset($this->items[$value]) ? $this->items[$value] : $value;
+        if (is_array($value)) {
+            $valueArr = '';
+            foreach ($value as $v) {
+                $valueArr[] = isset($this->items[$v]) ? $this->valueFilter($this->items[$v]) : $v;
+            }
+            return implode(',', $valueArr);
+        }
+        else {
+            return isset($this->items[$value]) ? $this->valueFilter($this->items[$value]) : $value;
+        }
+    }
+
+    /**
+     * 值过滤
+     */
+    private function valueFilter($value)
+    {
+        return str_replace([' ', '└─', '├─'], '', $value);
     }
 }
