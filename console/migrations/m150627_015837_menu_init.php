@@ -24,7 +24,7 @@ class m150627_015837_menu_init extends Migration
 
         $this->createTable('{{%menu}}', [
             'menu_id' => Schema::TYPE_PK . ' COMMENT \'菜单ID\'',
-            'name' => Schema::TYPE_STRING . ' NOT NULL DEFAULT \'\' COMMENT \'菜单名称\'',
+            'name' => Schema::TYPE_STRING . '(50) NOT NULL DEFAULT \'\' COMMENT \'菜单名称\'',
             'parent_id' => Schema::TYPE_INTEGER . ' NOT NULL DEFAULT 0 COMMENT \'父级ID\'',
             'parent_ids' => Schema::TYPE_STRING . ' NOT NULL DEFAULT \'\' COMMENT \'所有父级ID\'',
             'child_ids' => Schema::TYPE_STRING . ' NOT NULL DEFAULT \'\' COMMENT \'所有子级ID\'',
@@ -35,7 +35,7 @@ class m150627_015837_menu_init extends Migration
             'params' => Schema::TYPE_STRING . '(30) NOT NULL DEFAULT \'\' COMMENT \'附加参数\'',
             'auth_item' => Schema::TYPE_STRING . '(64) NOT NULL DEFAULT \'\' COMMENT \'认证项\'',
             'auth_rules' => Schema::TYPE_STRING . '(100) NOT NULL DEFAULT \'\' COMMENT \'认证规则\'',
-            'status' => Schema::TYPE_BOOLEAN . ' NOT NULL DEFAULT 0 COMMENT \'状态:显示为1,隐藏为0\'',
+            'status' => Schema::TYPE_BOOLEAN . ' NOT NULL DEFAULT 1 COMMENT \'状态:显示为1,隐藏为0\'',
             'sort' => Schema::TYPE_SMALLINT . ' NOT NULL DEFAULT 0 COMMENT \'排序\'',
             'type' => Schema::TYPE_SMALLINT . '(1) NOT NULL DEFAULT 0 COMMENT \'菜单类型:只做菜单为0,菜单+权限节点为1\'',
             'remark' => Schema::TYPE_STRING . ' NOT NULL DEFAULT \'\' COMMENT \'备注\'',

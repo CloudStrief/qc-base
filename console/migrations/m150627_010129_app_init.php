@@ -22,16 +22,15 @@ class m150627_010129_app_init extends Migration
             $tableOptions = 'CHARACTER SET utf8 COLLATE utf8_unicode_ci ENGINE=MyISAM';
         }
 
-        $this->createTable('{{%admin}}', [
+        $this->createTable('{{%user}}', [
             'user_id' => Schema::TYPE_PK . ' COMMENT \'用户ID\'',
             'username' => Schema::TYPE_STRING . ' NOT NULL DEFAULT \'\' COMMENT \'用户名\'',
             'email' => Schema::TYPE_STRING . ' NOT NULL DEFAULT \'\' COMMENT \'邮箱\'',
-            'frontend_user_id' => Schema::TYPE_INTEGER . ' NOT NULL DEFAULT 0 COMMENT \'绑定前台用户的ID\'',
             'auth_key' => Schema::TYPE_STRING . '(32) NOT NULL DEFAULT \'\' COMMENT \'身份验证密钥,保证cookie安全\'',
             'password_hash' => Schema::TYPE_STRING . ' NOT NULL DEFAULT \'\' COMMENT \'加盐的密码\'',
             'password_reset_token' => Schema::TYPE_STRING . ' NOT NULL DEFAULT \'\' COMMENT \'重置密码token\'',
 
-            'status' => Schema::TYPE_BOOLEAN . ' NOT NULL DEFAULT 0 COMMENT \'状态:启用为1,禁用为0\'',
+            'status' => Schema::TYPE_BOOLEAN . ' NOT NULL DEFAULT 1 COMMENT \'状态:启用为1,禁用为0\'',
             'sort' => Schema::TYPE_SMALLINT . ' NOT NULL DEFAULT 0 COMMENT \'排序\'',
             'login_times' => Schema::TYPE_INTEGER . ' NOT NULL DEFAULT 0 COMMENT \'登录次数\'',
             'login_error_times' => Schema::TYPE_INTEGER . ' NOT NULL DEFAULT 0 COMMENT \'登录失败次数\'',
@@ -43,7 +42,7 @@ class m150627_010129_app_init extends Migration
         ], $tableOptions . ' COMMENT=\'后台管理员表\'');
 
         //新增一个超级管理员
-        $this->insert('{{%admin}}', [
+        $this->insert('{{%user}}', [
             'username' => 'admin',
             'email' => 'admin@u-bo.com',
             'auth_key' => Yii::$app->security->generateRandomString(),
@@ -56,6 +55,6 @@ class m150627_010129_app_init extends Migration
 
     public function down()
     {
-        $this->dropTable('{{%admin}}');
+        $this->dropTable('{{%user}}');
     }
 }

@@ -7,15 +7,15 @@ $params = array_merge(
 );
 
 return [
-    'id' => 'admin',
+    'id' => 'backend',
     'basePath' => dirname(__DIR__),
     'controllerNamespace' => 'backend\controllers',
     'bootstrap' => ['log'],
     'modules' => [],
     'components' => [
         'user' => [
-            'identityClass' => 'backend\models\Admin',
-            //'enableAutoLogin' => true,
+            'identityClass' => 'common\models\User',
+            'enableAutoLogin' => true,
             'loginUrl' => ['passport/login'],
         ],
         'log' => [
