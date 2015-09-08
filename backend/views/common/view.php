@@ -28,7 +28,7 @@ $template = "<tr><th >{label}</th><td>{value}</td></tr>";
                     if (isset($configs['type'])) {
                         $type = $configs['type'];
                         unset($configs['type']);
-                        $control = Control::create($type, $attribute, $model, null, $configs);
+                        $control = Control::create($type, ['attribute' => $attribute, 'model' => $model] + $configs);
                         if (isset($configs['label'])) {
                             $label = $configs['label'];
                         }

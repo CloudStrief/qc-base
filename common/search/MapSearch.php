@@ -122,7 +122,7 @@ class MapSearch extends Search
         $itemsLabel = '---' . $this->model->getAttributeLabel($this->attribute) . '---';
         $items = ['' => $itemsLabel] + $items;
 
-        $html = Control::create('dropDown', $this->attribute, $this->model, null, ['items' => $items, 'htmlOptions' => $this->dropDownHtmlOptions])->renderHtml();
+        $html = Control::create('dropDown', ['attribute' => $this->attribute, 'model' => $this->model, 'items' => $items, 'options' => $this->dropDownHtmlOptions])->renderHtml();
 
         return $html;
     }

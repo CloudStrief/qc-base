@@ -55,13 +55,13 @@ class KeywordsSearch extends Search
      */
     public function renderHtml()
     {
-        $html = Control::create('label', $this->keywordsAttribute, $this->model)->renderHtml() . '&nbsp;&nbsp;';
+        $html = Control::create('label', ['attribute' => $this->keywordsAttribute, 'model' => $this->model])->renderHtml() . '&nbsp;&nbsp;';
 
-        $html .= Control::create('text', $this->keywordsAttribute, $this->model, null, ['htmlOptions' => $this->keywordsHtmlOptions])->renderHtml();
+        $html .= Control::create('text', ['attribute' => $this->keywordsAttribute, 'model' => $this->model, 'options' => $this->keywordsHtmlOptions])->renderHtml();
 
-        $html .= Control::create('label', $this->keywordsTypeAttribute, $this->model)->renderHtml() . '&nbsp;&nbsp;';
+        $html .= Control::create('label', ['attribute' => $this->keywordsTypeAttribute, 'model' => $this->model])->renderHtml() . '&nbsp;&nbsp;';
 
-        $html .= Control::create('dropDown', $this->keywordsTypeAttribute, $this->model, null, ['items' => $this->keywordsTypeItems, 'htmlOptions' => $this->keywordsTypeHtmlOptions])->renderHtml();
+        $html .= Control::create('dropDown', ['attribute' => $this->keywordsTypeAttribute, 'model' => $this->model, 'items' => $this->keywordsTypeItems, 'options' => $this->keywordsTypeHtmlOptions])->renderHtml();
 
         return $html;
     }
