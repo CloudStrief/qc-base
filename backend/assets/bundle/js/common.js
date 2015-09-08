@@ -140,6 +140,15 @@ var handleFormResponse = function (json) {
 
 jQuery(function($) {
 
+    //全局ajax请求错误处理
+    $(document).ajaxError(function(event, request, settings) {
+        if (request.status != 200) {
+            var errorInfo = request.responseText || '请求出错！';
+            cdialog.alert({type: 'error', 'content': errorInfo});
+            submitLock = 0;
+        }
+    });
+
     //批量全选
     $(document).on('click', '.box-select-all', function() {
         if ($(this).is(":checked"))

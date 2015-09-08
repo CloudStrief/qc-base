@@ -1227,7 +1227,7 @@ tr.high_light td,tr.high_light th{
 全局选中高亮
 ===================
 */
-input:checked+span{
+input:checked{
 	color:#008800;
 }
 input:radio+span{
