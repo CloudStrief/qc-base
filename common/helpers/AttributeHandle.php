@@ -9,12 +9,13 @@ namespace common\helpers;
 
 use yii\helpers\ArrayHelper;
 use yii\helpers\Url;
+use yii\helpers\Html;
 use common\helpers\Universal;
 use yii\base\UnknownPropertyException;
 use yii\base\InvalidValueException;
 
 /**
- * 列表属性处理事件
+ * 属性处理事件
  *
  * 在模型里配置列表显示的属性时，往往需要做一些处理，我们抽象出最常用的一些处理事件，供
  * 程序直接在配置里使用，以简化列出属性重复处理的工作。目前系统已有以下处理事件：
@@ -42,6 +43,10 @@ class AttributeHandle
      * @var Model 当前需要处理的静态模型
      */
     public static $model;
+    /**
+     * @var array 当前处理的模型的主键数组
+     */
+    public static $pks;
 
     /**
      * 为空处理事件
@@ -52,17 +57,18 @@ class AttributeHandle
     public static function emptyEvent($attribute, array $args = [])
     {
         $model = static::$model;
-        $default = ArrayHelper::getValue($args, 'default', '未知');
+        $default = ArrayHelper::getValue($args, 'default', '');
 
-        return empty($model->$attribute) ? $default : $model->$attribute;
+        return empty($model[$attribute]) ? $default : $model[$attribute];
     }
 
     /**
-     * 联合处理事件
+     * 连接处理事件，主要用于连接多个属性值
      *
      * @param string $default 为空时的默认值
-     * @param array $joinAttributes 需要联合显示的属性
-     * @param string $sepa 联合多个属性值的分隔符，默认为`/`
+     * @param array $joinAttributes 需要连接显示的属性
+     * @param string $sepa 连接多个属性值的分隔符，默认为`/`
+     * @param boolean $containsSelf 连接字段是否包括本身字段，默认不包括本身
      * @return string 返回以分隔符相连的多个属性的值
      */
     public static function joinEvent($attribute, array $args = []) 
@@ -70,22 +76,65 @@ class AttributeHandle
         $model = static::$model;
         $joinAttributes = ArrayHelper::getValue($args, 'joinAttributes', []);
         $sepa = ArrayHelper::getValue($args, 'sepa', '/');
+        $containsSelf = ArrayHelper::getValue($args, 'containsSelf', false);
 
-        if (empty($model->$attribute)) {
+        if (isset($args['default']) && empty($model[$attribute])) {
             return static::emptyEvent($attribute, $args);
         }
 
-        array_unshift($joinAttributes, $attribute);
+        if ($containsSelf) {
+            array_unshift($joinAttributes, $attribute);
+        }
         $joinValues = [];
         foreach ($joinAttributes as $attribute) {
-            if (isset($model->$attribute)) {
-                $joinValues[] = $model->$attribute;
+            if (isset($model[$attribute])) {
+                $joinValues[] = $model[$attribute];
             }
             else {
                 throw new UnknownPropertyException('访问不存在的属性' . $attribute. '！');
             }
         }
-        return implode($sepa, $joinValues);
+        return \implode($sepa, $joinValues);
+    }
+
+    /**
+     * 将数组转换为字符串
+     * 常用于把前台提交的多选数组转换成字符相隔的字符串保存到数据库里
+     *
+     * @param string $default 为空时的默认值
+     * @param string $sepa 联合多个属性值的分隔符，默认为`,`
+     * @return string 返回以分隔符相连的字符串
+     */
+    public static function implodeEvent($attribute, array $args = [])
+    {
+        $model = static::$model;
+        $sepa = ArrayHelper::getValue($args, 'sepa', ',');
+
+        if (empty($model[$attribute])) {
+            return static::emptyEvent($attribute, $args);
+        }
+
+        return \implode($sepa, $model[$attribute]);
+    }
+
+    /**
+     * 将字符串转换为数组
+     * 与`implodeEvent`处理事件相反，常用于把保存到数据库里的字符按照分隔符转换为数组
+     *
+     * @param string $default 为空时的默认值
+     * @param string $sepa 值的分隔符，默认为`,`
+     * @return string 返回以分隔符相连的字符串
+     */
+    public static function explodeEvent($attribute, array $args = [])
+    {
+        $model = static::$model;
+        $sepa = ArrayHelper::getValue($args, 'sepa', ',');
+
+        if (empty($model[$attribute])) {
+            return static::emptyEvent($attribute, $args);
+        }
+
+        return \explode($sepa, $model[$attribute]);
     }
 
     /**
@@ -100,18 +149,18 @@ class AttributeHandle
         $model = static::$model;
         $format = ArrayHelper::getValue($args, 'format', 'Y-m-d H:i:s');
 
-        if (empty($model->$attribute)) {
+        if (empty($model[$attribute])) {
             return static::emptyEvent($attribute, $args);
         }
 
-        return date($format, $model->$attribute);
+        return \date($format, $model[$attribute]);
     }
 
     /**
      * 映射处理事件
      *
      * @param string $default 为空时的默认值
-     * @param Callable $mapData 映射数据，映射数据键值对应属性值，如下
+     * @param Callable $items 映射数据，映射数据键值对应属性值，如下：
      *
      * ```php
      * [
@@ -120,27 +169,37 @@ class AttributeHandle
      * ]
      * ```
      *
+     * @param array $colors 颜色数据，可以给映射的值加上颜色标示，事例如下：
+     *
+     * ```php
+     * [
+     *     1 => 'green',
+     *     0 => 'red',
+     * ]
+     * ```
+     *
      * @return string 返回映射后的值
      */
     public static function mapEvent($attribute, array $args = []) 
     {
-        static $mapData = null;
+        static $items = null;
         $model = static::$model;
+        $value = $model[$attribute];
 
-        if (empty($model->$attribute)) {
+        if (isset($args['default']) && empty($value)) {
             return static::emptyEvent($attribute, $args);
         }
 
-        if ($mapData === null) {
-            $mapData = ArrayHelper::getValue($args, 'mapData', []);
-            $mapData = Universal::getCallableValue($mapData);
+        if (!isset($items[$attribute]) || $items[$attribute] === null) {
+            $items[$attribute] = ArrayHelper::getValue($args, 'items', []);
+            $items[$attribute] = Universal::getCallableValue($items[$attribute]);
         }
 
-        if (isset($mapData[$model->$attribute])) {
-            return $mapData[$model->$attribute];
+        if (isset($items[$attribute][$value])) {
+            return (isset($args['colors']) && isset($args['colors'][$value])) ? static::colorWrapper($args['colors'][$value], $items[$attribute][$value]) : $items[$attribute][$value];
         }
         else {
-            throw new InvalidValueException('映射字段' . $model->$attribute. '的值没有设置！');
+            return $value;
         }
     }
 
@@ -158,17 +217,16 @@ class AttributeHandle
     public static function operationEvent($attribute, array $args = []) 
     {
         $model = static::$model;
+        $pks = static::$pks;
         $actions = ArrayHelper::getValue($args, 'actions', [
             ['label' => '查看', 'url' => ['view']],
             ['label' => '编辑', 'url' => ['update']],
             ['label' => '删除', 'url'=> ['delete'], 'class' => 'link-delete'],
         ]);
-        $className = $model::className();
-        $pks = $className::primaryKey();
         $ops = [];
 
         foreach ($pks as $pk) {
-            $pkValues[$pk] = $model->$pk;
+            $pkValues[$pk] = $model[$pk];
         }
         foreach ($actions as $action) {
             //组装包含所有主键值的地址
@@ -177,7 +235,7 @@ class AttributeHandle
             $class = isset($action['class']) ? 'class="' . $action['class'] .'"' : '';
             $ops[] = '<a href="' . Url::to($url) . '" ' . $class . ' >[' . $action['label'] . ']</a> ';
         }
-        return implode('&nbsp;', $ops);
+        return \implode('&nbsp;', $ops);
     }
 
     /**
@@ -189,7 +247,7 @@ class AttributeHandle
      *
      * ```php
      * [
-     *     ['label' => '删除', 'url' => ['delete']],
+     *     ['label' => '删除', 'url' => ['delete'], 'class' => 'batch-btn'],
      * ]
      * ```
      *
@@ -198,16 +256,14 @@ class AttributeHandle
     public static function PkBoxEvent($attribute, array $args = [])
     {
         $model = static::$model;
+        $pks = static::$pks;
         $inputName = ArrayHelper::getValue($args, 'name', 'select[]');
         $inputClass = ArrayHelper::getValue($args, 'class', 'box-select');
 
-        $className = $model::className();
-        $pks = $className::primaryKey();
-
         foreach ($pks as $pk) {
-            $pkValues[$pk] = $model->$pk;
+            $pkValues[$pk] = $model[$pk];
         }
-        $pkValues = json_encode($pkValues);
+        $pkValues = \json_encode($pkValues);
         $tpl = '<input type="checkbox" name="' . $inputName . '" class="' . $inputClass . '" value=\'' . $pkValues . '\' />';
         return $tpl;
     }
@@ -232,19 +288,31 @@ class AttributeHandle
     public static function batchSortEvent($attribute, array $args = [])
     {
         static $num = 0;
+        $pks = static::$pks;
         $model = static::$model;
         $inputClass = ArrayHelper::getValue($args, 'class', '');
 
-        $className = $model::className();
-        $pks = $className::primaryKey();
         $inputName = 'sort[' . $num . '][sort]';
 
         foreach ($pks as $pk) {
-            $pkValues[$pk] = $model->$pk;
+            $pkValues[$pk] = $model[$pk];
         }
         $pkValues = json_encode($pkValues);
-        $tpl = '<input type="text" name="' . $inputName . '" class="input ' . $inputClass . '" value=\'' . $model->$attribute. '\' style="width:30px" /> <input type="hidden" name="sort[' . $num . '][pk]" value=\'' . $pkValues . '\' />';
+        $tpl = '<input type="text" name="' . $inputName . '" class="input ' . $inputClass . '" value=\'' . $model[$attribute] . '\' style="width:30px;padding:1px;" /> <input type="hidden" name="sort[' . $num . '][pk]" value=\'' . $pkValues . '\' />';
         $num++;
         return $tpl;
+    }
+
+    /**
+     * 颜色包装处理，主要给属性值加上颜色显示
+     *
+     * @param string $color 要加的颜色值
+     * @param string $value 属性值
+     * @param string $wrapperTag 外围包装元素标签，默认为`span`标签
+     * @return string 返回由颜色标签包装的属性值
+     */
+    public static function colorWrapper($color, $value, $wrapperTag = 'span')
+    {
+        return Html::beginTag($wrapperTag, ['style' => 'color:' . $color . ';']) . $value . Html::endTag($wrapperTag);
     }
 }
