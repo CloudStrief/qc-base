@@ -25,7 +25,7 @@ FrameAsset::register($this);
             }, 0);
         }
 var SUBMENU = {
-"custom":{"id":"custom","name":"系统","icon":"","tip":"","parent":"root","top":"","items":{"custom_set":{"id":"custom_set","name":"用户管理","icon":"","tip":"","parent":"custom","top":"","url":"","items":{"custom_set":{"id":"custom_set","name":"用户列表","icon":"","tip":"","parent":"custom","top":"","url":"admin.php?r=admin/index"},"custom_set1":{"id":"custom_set","name":"新增用户","icon":"","tip":"","parent":"custom","top":"","url":"admin.php?r=admin/create"}  }}}}
+"custom":{"id":"custom","name":"系统","icon":"","tip":"","parent":"root","top":"","items":{"custom_set":{"id":"custom_set","name":"用户管理","icon":"","tip":"","parent":"custom","top":"","url":"","items":{"custom_set":{"id":"custom_set","name":"用户列表","icon":"","tip":"","parent":"custom","top":"","url":"admin.php?r=user/index"},"custom_set1":{"id":"custom_set","name":"新增用户","icon":"","tip":"","parent":"custom","top":"","url":"admin.php?r=user/create"}}},"custom_set1":{"id":"custom_set","name":"菜单管理","icon":"","tip":"","parent":"custom","top":"","url":"","items":{"custom_set":{"id":"custom_set","name":"菜单列表","icon":"","tip":"","parent":"custom","top":"","url":"admin.php?r=menu/index"},"custom_set1":{"id":"custom_set","name":"新增菜单","icon":"","tip":"","parent":"custom","top":"","url":"admin.php?r=menu/create"}}}, "custom_set2":{"id":"custom_set","name":"角色管理","icon":"","tip":"","parent":"custom","top":"","url":"","items":{"custom_set":{"id":"custom_set","name":"角色列表","icon":"","tip":"","parent":"custom","top":"","url":"admin.php?r=role/index"},"custom_set1":{"id":"custom_set","name":"新增角色","icon":"","tip":"","parent":"custom","top":"","url":"admin.php?r=role/create"}}}} }
 };
     </script>
 

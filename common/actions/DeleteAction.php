@@ -21,7 +21,7 @@ class DeleteAction extends \yii\base\Action
     /**
      * @var string 当前操作模型类名
      */
-    public $modelName;
+    public $modelClass;
     /**
      * @var string 成功提示
      */
@@ -37,9 +37,9 @@ class DeleteAction extends \yii\base\Action
     public function run()
     {
         $request = Yii::$app->getRequest();
-        $modelName = ($this->modelName === null) ? $this->controller->modelName : $this->modelName;
+        $modelClass = ($this->modelClass === null) ? $this->controller->modelClass : $this->modelClass;
         //找到当前模型的所有主键，拼接成数组条件
-        $pks = $modelName::primaryKey();
+        $pks = $modelClass::primaryKey();
         $pkValues = [];
         $requestMethod = ($request->isGet) ? 'get' : 'post';
         $requestData = $request->$requestMethod();
@@ -60,7 +60,7 @@ class DeleteAction extends \yii\base\Action
         }
 
         foreach ($deletes as $delete) {
-            $model = $modelName::findOne($delete);
+            $model = $modelClass::findOne($delete);
             if ($model === null) {
                 throw new NotFoundHttpException('没有找到要删除的记录!');
             }

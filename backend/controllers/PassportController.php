@@ -9,7 +9,7 @@ namespace backend\controllers;
 
 use Yii;
 use common\models\LoginForm;
-use backend\models\Admin;
+use common\models\User;
 
 /**
  * 后台登录通行控制器
@@ -29,7 +29,7 @@ class PassportController extends \yii\web\Controller
         }
 
         $model = new LoginForm();
-        $model->userClass = Admin::className();
+        $model->userClass = User::className();
 
         if ($model->load(Yii::$app->request->post()) && $model->login()) {
             return $this->goHome();

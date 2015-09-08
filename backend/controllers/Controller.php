@@ -29,7 +29,7 @@ class Controller extends \yii\web\Controller
      *
      * 可以调用[[Oject::ClassName()]]获得
      */
-    public $modelName;
+    public $modelClass;
 
     /**
      * @inheritdoc
@@ -40,7 +40,9 @@ class Controller extends \yii\web\Controller
 
             $this->requiredLogin();
 
-            $this->modelName = $this->getModelName($action);
+            if ($this->modelClass === null) {
+                $this->modelClass = $this->getModelClass($action);
+            }
 
             return true;
         } else {
@@ -95,23 +97,23 @@ class Controller extends \yii\web\Controller
      *
      * @param Action $action 当前运行的动作类
      */
-    public function getModelName($action)
+    public function getModelClass($action)
     {
-        $modelName = '';
+        $modelClass = '';
         $controllerId = $action->controller->id;
 
         //如果控制器id包含-，则模型名称为-分隔的单词的首字母大写拼接而成
         if (false !== strpos($controllerId, '-')) {
             $words = explode('-', $controllerId);
             foreach ($words as $word) {
-                $modelName .= ucwords($word);
+                $modelClass .= ucwords($word);
             }
         } else {
-            $modelName = ucwords($action->controller->id);
+            $modelClass = ucwords($action->controller->id);
         }
-        $modelName = (isset($this->module->module)) ? 'backend\modules\\' . $this->module->id . '\\models\\' . $modelName : 'backend\models\\' . $modelName;
+        $modelClass = (isset($this->module->module)) ? 'backend\modules\\' . $this->module->id . '\\models\\' . $modelClass : 'backend\models\\' . $modelClass;
 
-        return $modelName;
+        return $modelClass;
     }
 
     /**

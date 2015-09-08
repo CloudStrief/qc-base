@@ -22,7 +22,7 @@ class UpdateAction extends \yii\base\Action
     /**
      * @var string 当前操作模型类名
      */
-    public $modelName;
+    public $modelClass;
     /**
      * @var string 当前视图
      */
@@ -50,9 +50,9 @@ class UpdateAction extends \yii\base\Action
     public function run()
     {
         $request = Yii::$app->getRequest();
-        $modelName = ($this->modelName === null) ? $this->controller->modelName : $this->modelName;
+        $modelClass = ($this->modelClass === null) ? $this->controller->modelClass : $this->modelClass;
         //找到当前模型的所有主键，拼接成数组条件
-        $pks = $modelName::primaryKey();
+        $pks = $modelClass::primaryKey();
         $pkValues = [];
         $requestMethod = ($request->isGet) ? 'get' : 'post';
         foreach ($pks as $pk) {
@@ -60,7 +60,7 @@ class UpdateAction extends \yii\base\Action
         } 
         $from = $request->$requestMethod('from');
 
-        $model = $modelName::findOne($pkValues);
+        $model = $modelClass::findOne($pkValues);
         if ($model === null) {
             throw new NotFoundHttpException('没有找到相应的记录!');
         }
@@ -80,7 +80,7 @@ class UpdateAction extends \yii\base\Action
         //获取当前模型的控件属性
         $controlAttributes = method_exists($model, 'controlAttributes') ? $model->controlAttributes() : [];
 
-        //\yii\helpers\VarDumper::dump($createAttributes, 10, true);
+        //\yii\helpers\VarDumper::dump($model, 10, true);
 
         return $this->controller->render($this->view, [
             'controlAttributes' => $controlAttributes,

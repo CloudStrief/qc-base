@@ -10,6 +10,7 @@ namespace common\actions;
 use Yii;
 use yii\data\ActiveDataProvider;
 use common\models\SearchForm;
+use common\widgets\ListView;
 
 /**
  * 通用的列表动作类
@@ -22,11 +23,16 @@ class ListAction extends \yii\base\Action
     /**
      * @var string 当前操作模型类名
      */
-    public $modelName;
+    public $modelClass;
     /**
-     * @var string 当前视图
+     * @var string 要渲染的列表视图
      */
-    public $view = '/common/list';
+    public $view;
+    /**
+     * @var string 视图展现形式
+     * @see common\widgets\ListView
+     */
+    public $showType;
     /**
      * @var array 关联with 
      */
@@ -39,23 +45,32 @@ class ListAction extends \yii\base\Action
      * @var interger 分页每页记录数
      */
     public $pageSize = 15;
+    /**
+     * @var array 渲染模板时要传递到模板的值
+     */
+    private $_renderData = [];
 
     /**
      * @inheritdoc
      */
     public function run()
     {
-        $this->modelName === null && $this->modelName = $this->controller->modelName;
-        $model = new $this->modelName;
         $request = Yii::$app->request;
+        $this->modelClass === null && $this->modelClass = $this->controller->modelClass;
+        $model = new $this->modelClass;
 
-        $query = call_user_func([$this->modelName, 'find']);
+        //获取当前的列表展现形式，如果实现了`tree`行为则使用树形结构显示
+        if ($this->showType === null) {
+            $this->showType = $model->getBehavior('tree') === null ? ListView::TABLE_VIEW : ListView::TREE_VIEW;
+        }
+
+        $query = call_user_func([$this->modelClass, 'find']);
 
         //排序，默认按照索引倒序排列
         if ($this->order !== null) {
             $query->orderBy($this->order);
         }
-        elseif($pks = call_user_func([$this->modelName, 'primaryKey'])) {
+        elseif($pks = call_user_func([$this->modelClass, 'primaryKey'])) {
             $query->orderBy([$pks[0] => SORT_DESC]);
         }
 
@@ -75,35 +90,57 @@ class ListAction extends \yii\base\Action
         //执行公共搜索
         $dynamicAttributes = SearchForm::getDynamicAttributes($searchAttributes, $attributeLabels);
         $searchModel = new SearchForm(\array_keys($dynamicAttributes), $dynamicAttributes);
-        $searchModel->load($request->get());
-        $query = SearchForm::getSearchQuery($searchAttributes, $searchModel, $query);
+        if ($searchModel->load($request->get())) {
+            $query = SearchForm::getSearchQuery($searchAttributes, $searchModel, $query);
+            //如果列表进行了搜索，那么无论是否是树形列表，都将以表格形式展现数据
+            $this->showType = ListView::TABLE_VIEW;
+        }
 
+        $this->_renderData = [
+            'get' => $request->get(),
+            'model' => $model,
+            'listAttributes' => $listAttributes,
+            'searchAttributes' => $searchAttributes,
+            'attributeLabels' => $attributeLabels,
+            'searchModel' => $searchModel,
+            'query' => $query,
+        ];
 
-        //\yii\helpers\VarDumper::dump($query, 10, true);
+        $renderMethod = $this->showType . 'Render';
+        return $this->$renderMethod();
+    }
 
-        //获取分页数
+    /**
+     * 表格列表视图的渲染
+     */
+    public function tableRender()
+    {
+        $request = Yii::$app->request;
         $pageSize = $request->get('page_size');
         $pageSize = empty($pageSize) ? $this->pageSize : $pageSize;
+
         $provider = new ActiveDataProvider([
-            'query' => $query,
+            'query' => $this->_renderData['query'],
             'pagination' => [
                 'pageSize' => $pageSize,
             ],
         ]);
-    
-        //\yii\helpers\VarDumper::dump($provider->pagination, 10, true);
 
-        return $this->controller->render($this->view, [
-            'get' => $request->get(),
-            'model' => new $this->modelName,
-            'models' => $provider->models,
-            'pages' => $provider->pagination,
-            'listAttributes' => $listAttributes,
-            'searchAttributes' => $searchAttributes,
-            'attributeLabels' => $attributeLabels,
-            'pageSize' => $pageSize,
-            'searchModel' => $searchModel,
-        ]);
+        $this->_renderData += ['models' => $provider->models, 'pages' => $provider->pagination, 'pageSize' => $pageSize];
+        $this->view = empty($this->view) ? '/common/list' : $this->view;
+        return $this->controller->render($this->view, $this->_renderData);
     }
-		
+
+    /**
+     * 树形列表视图的渲染
+     */
+    public function treeRender()
+    {
+        $models = $this->_renderData['query']->all();
+        $this->_renderData += ['models' => $models]; 
+
+        $this->view = empty($this->view) ? '/common/tree-list' : $this->view;
+        return $this->controller->render($this->view, $this->_renderData);
+    }
+
 }

@@ -21,7 +21,7 @@ class CreateAction extends \yii\base\Action
     /**
      * @var string 当前操作模型类名
      */
-    public $modelName;
+    public $modelClass;
     /**
      * @var string 当前视图
      */
@@ -48,9 +48,11 @@ class CreateAction extends \yii\base\Action
      */
     public function run()
     {
-        $this->modelName === null && $this->modelName = $this->controller->modelName;
-        $model = new $this->modelName(['scenario' => $this->scenario]);
+        $this->modelClass === null && $this->modelClass = $this->controller->modelClass;
+        $model = new $this->modelClass(['scenario' => $this->scenario]);
+        $model->loadDefaultValues();
         $request = Yii::$app->getRequest();
+
         //新增后是否留在新增页面
         $jumpCreate = $request->post('jump_create');
         $url = $jumpCreate == 1 ? ['create'] : ['index'];

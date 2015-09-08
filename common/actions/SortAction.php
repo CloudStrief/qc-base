@@ -21,7 +21,7 @@ class SortAction extends \yii\base\Action
     /**
      * @var string 当前操作模型类名
      */
-    public $modelName;
+    public $modelClass;
     /**
      * @var string 排序属性
      */
@@ -42,10 +42,10 @@ class SortAction extends \yii\base\Action
     {
         $request = Yii::$app->getRequest();
         $db = Yii::$app->db;
-        $modelName = ($this->modelName === null) ? $this->controller->modelName : $this->modelName;
+        $modelClass = ($this->modelClass === null) ? $this->controller->modelClass : $this->modelClass;
 
-        $pks = $modelName::primaryKey();
-        $tableName = $modelName::tableName();
+        $pks = $modelClass::primaryKey();
+        $tableName = $modelClass::tableName();
         $pkValues = [];
         $requestMethod = ($request->isGet) ? 'get' : 'post';
         $requestData = $request->$requestMethod();
