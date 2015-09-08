@@ -5,7 +5,7 @@ namespace tests\codeception\common\fixtures;
 use yii\test\ActiveFixture;
 
 /**
- * User fixture
+ * 用户基境
  */
 class UserFixture extends ActiveFixture
 {

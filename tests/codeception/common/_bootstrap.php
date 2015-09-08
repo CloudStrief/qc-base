@@ -9,7 +9,7 @@ require_once(YII_APP_BASE_PATH . '/vendor/yiisoft/yii2/Yii.php');
 require_once(YII_APP_BASE_PATH . '/common/config/bootstrap.php');
 
 // set correct script paths
-$_SERVER['SERVER_NAME'] = 'localhost';
+$_SERVER['SERVER_NAME'] = '127.8.8.8';
 $_SERVER['SERVER_PORT'] = '80';
 
 Yii::setAlias('@tests', dirname(dirname(__DIR__)));

@@ -1,42 +1,27 @@
 <?php
 
-use tests\codeception\backend\AcceptanceTester;
-use tests\codeception\common\_pages\LoginPage;
+use tests\codeception\backend\FunctionalTester;
+use tests\codeception\backend\_pages\LoginPage;
 
-$I = new AcceptanceTester($scenario);
-$I->wantTo('ensure login page works');
+$I = new FunctionalTester($scenario);
+$I->wantTo('确保后台登录正常工作');
 
 $loginPage = LoginPage::openBy($I);
 
-$I->amGoingTo('submit login form with no data');
+$I->amGoingTo('不输入信息直接提交登录表单');
 $loginPage->login('', '');
-if (method_exists($I, 'wait')) {
-    $I->wait(3); // only for selenium
-}
-$I->expectTo('see validations errors');
-$I->see('Username cannot be blank.', '.help-block');
-$I->see('Password cannot be blank.', '.help-block');
+$I->expectTo('看见验证错误信息');
+$I->see('用户名不能为空', '.help-block');
+$I->see('密码不能为空', '.help-block');
 
-$I->amGoingTo('try to login with wrong credentials');
-$I->expectTo('see validations errors');
+$I->amGoingTo('使用错误的密码提交登录表单');
+$I->expectTo('看见验证错误信息');
 $loginPage->login('admin', 'wrong');
-if (method_exists($I, 'wait')) {
-    $I->wait(3); // only for selenium
-}
-$I->expectTo('see validations errors');
-$I->see('Incorrect username or password.', '.help-block');
+$I->expectTo('看见验证错误信息');
+$I->see('用户名或者密码错误', '.help-block');
 
-$I->amGoingTo('try to login with correct credentials');
-$loginPage->login('erau', 'password_0');
-if (method_exists($I, 'wait')) {
-    $I->wait(3); // only for selenium
-}
-$I->expectTo('see that user is logged');
-$I->seeLink('Logout (erau)');
-$I->dontSeeLink('Login');
-$I->dontSeeLink('Signup');
-/** Uncomment if using WebDriver
- * $I->click('Logout (erau)');
- * $I->dontSeeLink('Logout (erau)');
- * $I->seeLink('Login');
- */
+$I->amGoingTo('使用正确的用户信息登录表单');
+$loginPage->login('admin', 'admin');
+$I->expectTo('用户登录成功');
+$I->seeLink('[注销]');
+$I->dontSeeInTitle('登录');

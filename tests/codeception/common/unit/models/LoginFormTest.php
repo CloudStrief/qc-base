@@ -9,7 +9,7 @@ use common\models\LoginForm;
 use tests\codeception\common\fixtures\UserFixture;
 
 /**
- * Login form test
+ * 后台登录测试
  */
 class LoginFormTest extends DbTestCase
 {
@@ -36,30 +36,36 @@ class LoginFormTest extends DbTestCase
         parent::tearDown();
     }
 
+    /**
+     * 测试使用没有的用户登录
+     */
     public function testLoginNoUser()
     {
         $model = new LoginForm([
-            'username' => 'not_existing_username',
-            'password' => 'not_existing_password',
+            'username' => 'no_user',
+            'password' => 'no_password',
         ]);
 
-        $this->specify('user should not be able to login, when there is no identity', function () use ($model) {
-            expect('model should not login user', $model->login())->false();
-            expect('user should not be logged in', Yii::$app->user->isGuest)->true();
+        $this->specify('用户将不会登录，因为没有此用户', function () use ($model) {
+            expect('login方法应该返回false', $model->login())->false();
+            expect('用户应该没有登录进来', Yii::$app->user->isGuest)->true();
         });
     }
 
+    /**
+     * 测试使用错误的密码登录
+     */
     public function testLoginWrongPassword()
     {
         $model = new LoginForm([
-            'username' => 'bayer.hudson',
+            'username' => 'admin',
             'password' => 'wrong_password',
         ]);
 
-        $this->specify('user should not be able to login with wrong password', function () use ($model) {
-            expect('model should not login user', $model->login())->false();
-            expect('error message should be set', $model->errors)->hasKey('password');
-            expect('user should not be logged in', Yii::$app->user->isGuest)->true();
+        $this->specify('因为使用错误的密码，用户将不会登录成功', function () use ($model) {
+            expect('login方法将返回false', $model->login())->false();
+            expect('密码错误信息应该被设置', $model->errors)->hasKey('password');
+            expect('用户应该没有登录进来', Yii::$app->user->isGuest)->true();
         });
     }
 
@@ -67,14 +73,14 @@ class LoginFormTest extends DbTestCase
     {
 
         $model = new LoginForm([
-            'username' => 'bayer.hudson',
-            'password' => 'password_0',
+            'username' => 'admin',
+            'password' => 'admin',
         ]);
 
-        $this->specify('user should be able to login with correct credentials', function () use ($model) {
-            expect('model should login user', $model->login())->true();
-            expect('error message should not be set', $model->errors)->hasntKey('password');
-            expect('user should be logged in', Yii::$app->user->isGuest)->false();
+        $this->specify('用户应该正常登录', function () use ($model) {
+            expect('login方法应该返回true', $model->login())->true();
+            expect('密码错误信息应该不被设置', $model->errors)->hasntKey('password');
+            expect('用户应该登录成功', Yii::$app->user->isGuest)->false();
         });
     }
 
