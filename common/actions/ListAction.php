@@ -58,7 +58,6 @@ class ListAction extends \yii\base\Action
         $request = Yii::$app->request;
         $this->modelClass === null && $this->modelClass = $this->controller->modelClass;
         $model = new $this->modelClass;
-        $get = $request->get();
 
         //获取当前的列表展现形式，如果实现了`tree`行为则使用树形结构显示
         if ($this->showType === null) {
@@ -87,8 +86,6 @@ class ListAction extends \yii\base\Action
         $searchAttributes = method_exists($model, 'searchAttributes') ? $model->searchAttributes() : [];
         //获取属性名称
         $attributeLabels = method_exists($model, 'attributeLabels') ? $model->attributeLabels() : [];
-        //获取过滤导航
-        $filterNavs = method_exists($model, 'filterNavs') ? $model->filterNavs() : [];
 
         //执行公共搜索
         $dynamicAttributes = SearchForm::getDynamicAttributes($searchAttributes, $attributeLabels);
@@ -99,24 +96,14 @@ class ListAction extends \yii\base\Action
             $this->showType = ListView::TABLE_VIEW;
         }
 
-        //执行导航过滤
-        if (!empty($filterNavs) && isset($filterNavs['execFilter']) && $filterNavs['execFilter'] == true) {
-            foreach ($filterNavs['filterAttributes'] as $attribute) {
-                if (!empty($get[$attribute])) {
-                    $query->andWhere([$attribute => $get[$attribute]]);
-                }
-            }
-        }
-
         $this->_renderData = [
-            'get' => $get,
+            'get' => $request->get(),
             'model' => $model,
             'listAttributes' => $listAttributes,
             'searchAttributes' => $searchAttributes,
             'attributeLabels' => $attributeLabels,
             'searchModel' => $searchModel,
             'query' => $query,
-            'filterNavs' => $filterNavs,
         ];
 
         $renderMethod = $this->showType . 'Render';
@@ -139,12 +126,7 @@ class ListAction extends \yii\base\Action
             ],
         ]);
 
-        $this->_renderData += [
-            'models' => $provider->models, 
-            'pages' => $provider->pagination, 
-            'pageSize' => $pageSize
-        ];
-
+        $this->_renderData += ['models' => $provider->models, 'pages' => $provider->pagination, 'pageSize' => $pageSize];
         $this->view = empty($this->view) ? '/common/list' : $this->view;
         return $this->controller->render($this->view, $this->_renderData);
     }

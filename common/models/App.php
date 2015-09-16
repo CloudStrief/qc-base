@@ -29,10 +29,6 @@ class App extends Object
                 'app_id' => 'backend',
                 'name' => '基础应用',
             ],
-            [
-                'app_id' => 'crm',
-                'name' => 'CRM应用',
-            ]
         ];
     }
 
