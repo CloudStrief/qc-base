@@ -21,6 +21,8 @@ MainAsset::register($this);
 $this->title = '用户管理';
 ?>
 
+<?= $this->render('_nav', ['filterNavs' => $filterNavs, 'get' => $get]); ?>
+
 <?= $this->render('_search', ['searchAttributes' => $searchAttributes, 'attributeLabels' => $attributeLabels, 'searchModel' => $searchModel]); ?>
 
 <?php ListView::begin([

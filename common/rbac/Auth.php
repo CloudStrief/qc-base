@@ -10,6 +10,7 @@ namespace common\rbac;
 use Yii;
 use yii\base\Object;
 use yii\helpers\ArrayHelper;
+use yii\base\NotSupportedException;
 
 /**
  * 通用权限管理
@@ -25,9 +26,8 @@ class Auth extends Object
     public static function getRules()
     {
         return [
-            ['name' => 'allScope', 'label' => '通用全部范围', 'auth_label' => '全部'],
-            ['name' => 'selfScope', 'label' => '通用仅自己范围', 'auth_label' => '仅自己'],
-            ['name' => 'subordinateScope', 'label' => '通用自己和下级范围', 'auth_label' => '自己和下属'],
+            'selfScope' => ['class' => 'common\rbac\SelfScopeRule'],
+            'subordinateScope' => ['class' => 'common\rbac\SubordinateScopeRule'],
         ];
     }
 
@@ -37,6 +37,30 @@ class Auth extends Object
     public static function getRuleItems()
     {
         $rules = static::getRules();
-        return ArrayHelper::map($rules, 'name', 'label');
+        $items = [];
+        foreach ($rules as $rule) {
+            if (isset($rule['class'])) {
+                $rule = new $rule['class'];
+                $items[$rule->name] = $rule->label;
+            }
+        }
+        return $items;
+    }
+
+    /**
+     * 返回指定的规则对象
+     *
+     * @var string $name 规则的名称
+     * @return ScopeRule 范围规则对象
+     */
+    public static function getRuleObject($name)
+    {
+        $rules = static::getRules();
+        if (isset($rules[$name])) {
+            return new $rules[$name]['class'];
+        }
+        else {
+            throw new NotSupportedException('试图创建不支持的规则`' . $name . '`！');
+        }
     }
 }
