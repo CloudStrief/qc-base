@@ -7,8 +7,6 @@
 
 namespace common\assets;
 
-use yii\web\AssetBundle;
-
 /**
  * my97日期插件资源包
  *
@@ -17,8 +15,6 @@ use yii\web\AssetBundle;
  */
 class My97DatePickerAsset extends AssetBundle
 {
-    public $basePath = '@webroot/bundle';
-    public $baseUrl = '@web/bundle';
     public $css = [
     ];
     public $js = [

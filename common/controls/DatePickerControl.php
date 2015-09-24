@@ -75,10 +75,19 @@ class DatePickerControl extends TextControl
      */
     public function renderValue()
     {
-        $attribute = $this->attribute;
-        $value = ($this->model === null) ? $this->value : $this->model->$attribute;
-        $format = (isset($this->dateConfig['viewFormat'])) ? $this->dateConfig['viewFormat'] : $this->viewFormat;
-        return \date($format, $value);
+        $value = parent::renderValue();
+
+        if (!$value) {
+            return null;
+        }
+
+        if (is_int($value)) {
+            //若当前日期格式为integer型，则需要进行转化
+            $format = (isset($this->dateConfig['viewFormat'])) ? $this->dateConfig['viewFormat'] : $this->viewFormat;
+            return \date($format, $value);
+        }
+
+        return $value;
     }
 
     /**
