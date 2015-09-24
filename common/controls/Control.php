@@ -57,6 +57,7 @@ abstract class Control extends Component
         'dropDown' => 'common\controls\DropDownControl',
         'textarea' => 'common\controls\TextareaControl',
         'tree' => 'common\controls\TreeControl',
+        'datePicker' => 'common\controls\DatePickerControl',
     ];
     /**
      * @var string 当前解析的模型的属性
@@ -147,5 +148,32 @@ abstract class Control extends Component
     public function renderValue()
     {
         return '';
+    }
+
+    private $_view;
+
+    /**
+     * Returns the view object that can be used to render views or view files.
+     * The [[render()]] and [[renderFile()]] methods will use
+     * this view object to implement the actual view rendering.
+     * If not set, it will default to the "view" application component.
+     * @return \yii\web\View the view object that can be used to render views or view files.
+     */
+    public function getView()
+    {
+        if ($this->_view === null) {
+            $this->_view = Yii::$app->getView();
+        }
+
+        return $this->_view;
+    }
+
+    /**
+     * Sets the view object to be used by this widget.
+     * @param View $view the view object that can be used to render views or view files.
+     */
+    public function setView($view)
+    {
+        $this->_view = $view;
     }
 }

@@ -7,15 +7,13 @@
 
 namespace common\assets;
 
-use yii\web\AssetBundle;
-
 /**
  * artDialog弹出窗资源包
  *
  * @author legendjw <legendjw@yeah.net>
  * @since 0.1
  */
-class ArtDialogAsset extends AssetBundle
+class ArtDialogAsset extends \yii\web\AssetBundle
 {
     public $sourcePath = '@bower/artDialog-temp';
     public $css = [
