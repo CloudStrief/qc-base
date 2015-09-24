@@ -22,6 +22,6 @@ class My97DatePickerAsset extends AssetBundle
     public $css = [
     ];
     public $js = [
-        'js/my97DatePicker/WdatePicker.js',
+        'my97DatePicker/WdatePicker.js',
     ];
 }

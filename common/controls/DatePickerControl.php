@@ -17,13 +17,8 @@ use common\assets\My97DatePickerAsset;
  * @author strief <strief@u-bo.com>
  * @since 0.1
  */
-class DatePickerControl extends Control
+class DatePickerControl extends TextControl
 {
-    /**
-     * @inheritdoc
-     */
-    protected $defaultOptions = ['class' => 'input length_5'];
-
     /**
      * @var array 日期选择器的配置
      */
@@ -49,7 +44,7 @@ class DatePickerControl extends Control
      * 更多详细参数请阅读my97官方说明 http://www.my97.net/dp/demo/resource/2.2.asp
      */
     public $format = 'yyyy-MM-dd';
-    
+
     /**
      * @var string 详情页日期展现格式
      */
@@ -72,15 +67,7 @@ class DatePickerControl extends Control
         $attribute = $this->attribute;
         $this->model->$attribute = $this->renderValue();
 
-        if ($this->form !== null && $this->model !== null) {
-            return $this->form->field($this->model, $this->attribute)->hint($this->hint)->textInput($this->options);
-        }
-
-        if ($this->model !== null) {
-            return Html::activeTextInput($this->model, $this->attribute, $this->options);
-        }
-
-        return Html::textInput($this->name, $this->value, $this->options);
+        return parent::renderHtml();
     }
 
     /**
