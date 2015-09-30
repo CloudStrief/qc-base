@@ -58,6 +58,7 @@ abstract class Control extends Component
         'textarea' => 'common\controls\TextareaControl',
         'tree' => 'common\controls\TreeControl',
         'datePicker' => 'common\controls\DatePickerControl',
+        'umeditor' => 'common\controls\UmeditorControl',
     ];
     /**
      * @var string 当前解析的模型的属性
