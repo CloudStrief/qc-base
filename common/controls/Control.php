@@ -59,6 +59,7 @@ abstract class Control extends Component
         'tree' => 'common\controls\TreeControl',
         'datePicker' => 'common\controls\DatePickerControl',
         'umeditor' => 'common\controls\UmeditorControl',
+        'chosen' => 'common\controls\ChosenControl',
     ];
     /**
      * @var string 当前解析的模型的属性
